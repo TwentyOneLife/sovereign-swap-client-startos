@@ -16,6 +16,12 @@ export const DEFAULTS = {
   btc_rpc_pass: '',
   xbtc_rpc_user: '',
   xbtc_rpc_pass: '',
+  // PEM Root CA to verify an https:// node against (the node's StartOS Root CA). Required for an
+  // https LAN address; an onion accepts its own cert (design 0011). Empty for a plain-http node.
+  btc_rpc_ca: '',
+  xbtc_rpc_ca: '',
+  // Tor SOCKS5 proxy used to dial an .onion node or relay (design 0011). The StartOS Tor proxy.
+  tor_socks: '127.0.0.1:9050',
   price_reference: false,
   // Voluntary fee, off by default (design 0010); stays off until a legal opinion.
   fee_enabled: false,
@@ -37,6 +43,9 @@ export const shape = z
     btc_rpc_pass: z.string().catch(''),
     xbtc_rpc_user: z.string().catch(''),
     xbtc_rpc_pass: z.string().catch(''),
+    btc_rpc_ca: z.string().catch(''),
+    xbtc_rpc_ca: z.string().catch(''),
+    tor_socks: z.string().catch('127.0.0.1:9050'),
     price_reference: z.boolean().catch(false),
     fee_enabled: z.boolean().catch(false),
     fee_sp_address: z.string().catch(''),
