@@ -9,7 +9,7 @@ const { InputSpec, Value, List } = sdk
 export const inputSpec = InputSpec.of({
   btc_node: Value.text({
     name: 'BTC node (host:port)', description: 'Your Bitcoin node RPC.', required: true,
-    default: DEFAULTS.btc_node, placeholder: '10.0.0.1:8332',
+    default: DEFAULTS.btc_node, placeholder: 'host:8332',
   }),
   btc_rpc_user: Value.text({ name: 'BTC RPC user', required: false, default: DEFAULTS.btc_rpc_user }),
   btc_rpc_pass: Value.text({
@@ -17,7 +17,7 @@ export const inputSpec = InputSpec.of({
   }),
   xbtc_node: Value.text({
     name: 'xBTC node (host:port)', description: 'Your Bitcoin Knots BLAKE2b node RPC.', required: true,
-    default: DEFAULTS.xbtc_node, placeholder: '10.0.0.1:8442',
+    default: DEFAULTS.xbtc_node, placeholder: 'host:8442',
   }),
   xbtc_rpc_user: Value.text({ name: 'xBTC RPC user', required: false, default: DEFAULTS.xbtc_rpc_user }),
   xbtc_rpc_pass: Value.text({

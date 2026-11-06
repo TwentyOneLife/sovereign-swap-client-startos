@@ -4,7 +4,7 @@ FROM rust@sha256:ed2c95ca377d6571b124b05e75e01207973ded639dce7d5542eb7bcd797e32a
 
 ARG SWAP_REPO=https://github.com/TwentyOneLife/sovereign-swap.git
 # SCAFFOLD: pinned to the daemon branch commit. Bump to a release TAG once the daemon is released.
-ARG SWAP_REF=43bfef444d44619f6206ae246b6b16199f2a7d19
+ARG SWAP_REF=v0.2.0
 
 RUN apt-get -qq update \
  && DEBIAN_FRONTEND=noninteractive apt-get -qq install -y --no-install-recommends ca-certificates git \
