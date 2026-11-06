@@ -17,6 +17,11 @@ export const DEFAULTS = {
   xbtc_rpc_user: '',
   xbtc_rpc_pass: '',
   price_reference: false,
+  // Voluntary fee, off by default (design 0010); stays off until a legal opinion.
+  fee_enabled: false,
+  fee_sp_address: '',
+  fee_maker_bps: 20,
+  fee_taker_bps: 30,
 }
 
 export const shape = z
@@ -33,6 +38,10 @@ export const shape = z
     xbtc_rpc_user: z.string().catch(''),
     xbtc_rpc_pass: z.string().catch(''),
     price_reference: z.boolean().catch(false),
+    fee_enabled: z.boolean().catch(false),
+    fee_sp_address: z.string().catch(''),
+    fee_maker_bps: z.number().int().catch(20),
+    fee_taker_bps: z.number().int().catch(30),
   })
   .strip()
 

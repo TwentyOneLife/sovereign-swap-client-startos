@@ -41,13 +41,27 @@ export const inputSpec = InputSpec.of({
     description: 'Fetch nonkyc BTCB2/BTC as a pricing hint, over Tor. Off by default; never relied on.',
     default: DEFAULTS.price_reference,
   }),
+  // Voluntary fee (design 0010). Off by default and until a legal opinion; a silent payment address
+  // pays a fresh, unlinkable output per swap. A BIP352-aware signer is required to enable it.
+  fee_enabled: Value.toggle({
+    name: 'Voluntary fee',
+    description: 'Add a small voluntary fee output to each swap. Off by default; needs a BIP352-aware signer.',
+    default: DEFAULTS.fee_enabled,
+  }),
+  fee_sp_address: Value.text({
+    name: 'Fee address (silent payment)', required: false, default: DEFAULTS.fee_sp_address,
+    placeholder: 'sp1...',
+    description: 'A BIP352 silent payment address. Required only when the fee is on.',
+  }),
+  fee_maker_bps: Value.number({ name: 'Maker fee (basis points)', required: true, default: DEFAULTS.fee_maker_bps, min: 0, max: 100, integer: true }),
+  fee_taker_bps: Value.number({ name: 'Taker fee (basis points)', required: true, default: DEFAULTS.fee_taker_bps, min: 0, max: 100, integer: true }),
 })
 
 export const config = sdk.Action.withInput(
   'config',
   async ({ effects }) => ({
     name: 'Node & swap settings',
-    description: 'The node connection, relays, signer, confirmations and the optional price reference.',
+    description: 'The node connection, relays, signer, confirmations, the optional price reference and the optional voluntary fee.',
     warning: null,
     allowedStatuses: 'any',
     group: 'Configuration',
