@@ -8,11 +8,14 @@ const { InputSpec, Value, List } = sdk
 // now the operator points the client at a BTC node and an xBTC (Knots BLAKE2b) node by address.
 export const inputSpec = InputSpec.of({
   btc_node: Value.text({
-    name: 'BTC node (host:port)',
-    description: 'Your Bitcoin node RPC.',
+    name: 'BTC node RPC',
+    description:
+      'Your Bitcoin node RPC endpoint. A StartOS node is https://host:port (the RPC interface, HTTPS); ' +
+      'use its Tor address (https://…onion:port) to reach a node on another server, or its Local address ' +
+      'on the same network. A bare host:port is treated as plain http:// for a loopback node.',
     required: true,
     default: DEFAULTS.btc_node,
-    placeholder: 'host:8332',
+    placeholder: 'https://…onion:8332',
   }),
   btc_rpc_user: Value.text({
     name: 'BTC RPC user',
@@ -25,12 +28,24 @@ export const inputSpec = InputSpec.of({
     default: DEFAULTS.btc_rpc_pass,
     masked: true,
   }),
+  btc_rpc_ca: Value.textarea({
+    name: 'BTC node Root CA (PEM)',
+    description:
+      "The node's StartOS Root CA, in PEM. Required for an https:// node on the LAN so the connection " +
+      'is verified; paste the Root CA from the node (System settings), not the leaf. Leave empty for a ' +
+      'Tor onion (Tor authenticates the endpoint) or a plain-http loopback node.',
+    required: false,
+    default: DEFAULTS.btc_rpc_ca,
+    placeholder: '-----BEGIN CERTIFICATE-----',
+  }),
   xbtc_node: Value.text({
-    name: 'xBTC node (host:port)',
-    description: 'Your Bitcoin Knots BLAKE2b node RPC.',
+    name: 'xBTC node RPC',
+    description:
+      'Your Bitcoin Knots BLAKE2b node RPC endpoint, same forms as the BTC node. Both chains cannot ' +
+      'run on one StartOS server, so at least one node is normally reached over its Tor address.',
     required: true,
     default: DEFAULTS.xbtc_node,
-    placeholder: 'host:8442',
+    placeholder: 'https://…onion:8332',
   }),
   xbtc_rpc_user: Value.text({
     name: 'xBTC RPC user',
@@ -42,6 +57,24 @@ export const inputSpec = InputSpec.of({
     required: false,
     default: DEFAULTS.xbtc_rpc_pass,
     masked: true,
+  }),
+  xbtc_rpc_ca: Value.textarea({
+    name: 'xBTC node Root CA (PEM)',
+    description:
+      "The xBTC node's StartOS Root CA, in PEM. Same rule as the BTC node: required for an https:// LAN " +
+      'address, left empty for a Tor onion or a plain-http loopback node.',
+    required: false,
+    default: DEFAULTS.xbtc_rpc_ca,
+    placeholder: '-----BEGIN CERTIFICATE-----',
+  }),
+  tor_socks: Value.text({
+    name: 'Tor SOCKS proxy',
+    description:
+      'The Tor SOCKS5 proxy used to reach an .onion node or relay. The StartOS default is usually ' +
+      'correct; change it only if your Tor proxy listens elsewhere.',
+    required: true,
+    default: DEFAULTS.tor_socks,
+    placeholder: '127.0.0.1:9050',
   }),
   relays: Value.list(
     List.text(
