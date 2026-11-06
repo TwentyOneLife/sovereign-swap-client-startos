@@ -1,8 +1,12 @@
 import { sdk } from './sdk'
 import { port, torPackageId, torSocksHostId, torSocksPort } from './utils'
+import { settingsJson } from './fileModels/settings.json'
 
 export const main = sdk.setupMain(async ({ effects }) => {
   console.info('Starting sovereign-swap client')
+
+  // const() so changing the web credentials or any setting restarts the daemon to apply them.
+  const settings = await settingsJson.read().const(effects)
 
   // The StartOS Tor SOCKS proxy address, reachable from this container over the service bridge. The
   // container has no Tor at a fixed address of its own, so we resolve the proxy here and hand it to
@@ -29,20 +33,25 @@ export const main = sdk.setupMain(async ({ effects }) => {
     'client',
   )
 
-  // The daemon binds the service bridge (not loopback) only because StartOS exposes it solely through
-  // an authenticated Tor onion, and the API token guards every route: SWAP_API_TRUST_NETWORK=1 is the
-  // explicit opt-in for that boundary. Config (node RPC, relays) lives in /mnt/client/settings.json,
-  // written by the config action; the daemon reads it.
-  const env = [
-    `SWAP_API_BIND=0.0.0.0:${port}`,
-    'SWAP_API_TRUST_NETWORK=1',
-    'SWAP_DATA_DIR=/mnt/client',
-    `SWAP_TOR_SOCKS=${torSocks}`,
-  ].join(' ')
-
+  // The daemon binds the service bridge (not loopback) because StartOS exposes it only through the
+  // package interface, which is itself Tor by default; SWAP_API_TRUST_NETWORK=1 is the explicit opt-in
+  // for that boundary. SWAP_CONFIG_LOCKED keeps node/relay config in the package action (the web UI
+  // shows it read-only), and SWAP_USERNAME/PASSWORD put the whole web UI behind HTTP Basic auth so the
+  // onion alone is not enough to reach the swaps. The password is generated on first run (init).
   return sdk.Daemons.of(effects).addDaemon('primary', {
     subcontainer: container,
-    exec: { command: ['sh', '-c', `${env} sovereign-swap-daemon`] },
+    exec: {
+      command: ['sovereign-swap-daemon'],
+      env: {
+        SWAP_API_BIND: `0.0.0.0:${port}`,
+        SWAP_API_TRUST_NETWORK: '1',
+        SWAP_DATA_DIR: '/mnt/client',
+        SWAP_TOR_SOCKS: torSocks,
+        SWAP_CONFIG_LOCKED: '1',
+        SWAP_USERNAME: settings?.web_username || 'sovereign',
+        SWAP_PASSWORD: settings?.web_password || '',
+      },
+    },
     ready: {
       display: 'Web UI',
       fn: async () =>
