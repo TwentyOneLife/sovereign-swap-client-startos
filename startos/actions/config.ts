@@ -3,10 +3,26 @@ import { sdk } from '../sdk'
 
 const { InputSpec, Value, List } = sdk
 
-// The node connection the daemon uses (design 0009: this belongs in the package config, not the web
-// UI). A dependency-wired node selection (like electrs's "Select Node") is a planned refinement; for
-// now the operator points the client at a BTC node and an xBTC (Knots BLAKE2b) node by address.
-export const inputSpec = InputSpec.of({
+// Configuration is split into focused actions (one window each) rather than one long form: Nodes,
+// Relays and signer, Safety, Fee, and Web interface. Each reads the current settings and merges only
+// its own fields, so they share one settings.json without stepping on each other. Node and relay
+// config lives here, not in the web UI (design 0009), and the web UI shows it read-only.
+
+// Optional/masked text fields arrive as null when empty; the daemon wants strings. Merge only the
+// fields the action owns.
+const saver =
+  (effects: Parameters<typeof settingsJson.merge>[0]) =>
+  async ({ input }: { input: Record<string, unknown> }) => {
+    const clean = Object.fromEntries(
+      Object.entries(input).map(([k, v]) => [k, v === null ? '' : v]),
+    )
+    await settingsJson.merge(effects, clean as Partial<typeof DEFAULTS>)
+  }
+
+const current = async () => settingsJson.read().once()
+
+// --- Nodes (RPC) ---
+const nodesSpec = InputSpec.of({
   btc_node: Value.text({
     name: 'BTC node RPC',
     description:
@@ -76,6 +92,26 @@ export const inputSpec = InputSpec.of({
     default: DEFAULTS.tor_socks,
     placeholder: '127.0.0.1:9050',
   }),
+})
+
+export const nodes = sdk.Action.withInput(
+  'nodes',
+  async ({ effects }) => ({
+    name: 'Nodes (RPC)',
+    description:
+      'Your BTC and xBTC (Knots BLAKE2b) node RPC endpoints, credentials, Root CAs, and the Tor proxy.',
+    warning: null,
+    allowedStatuses: 'any',
+    group: 'Configuration',
+    visibility: 'enabled',
+  }),
+  nodesSpec,
+  current,
+  async ({ effects, input }) => saver(effects)({ input }),
+)
+
+// --- Relays and signer ---
+const relaysSignerSpec = InputSpec.of({
   relays: Value.list(
     List.text(
       {
@@ -91,6 +127,26 @@ export const inputSpec = InputSpec.of({
     default: 'cold',
     values: { cold: 'Cold / watch-only', hot: 'Hot (regtest only)' },
   }),
+})
+
+export const relaysSigner = sdk.Action.withInput(
+  'relays-signer',
+  async ({ effects }) => ({
+    name: 'Relays and signer',
+    description:
+      'The swap relays (Nostr, Tor-first) and whether spending keys stay offline.',
+    warning: null,
+    allowedStatuses: 'any',
+    group: 'Configuration',
+    visibility: 'enabled',
+  }),
+  relaysSignerSpec,
+  current,
+  async ({ effects, input }) => saver(effects)({ input }),
+)
+
+// --- Safety ---
+const safetySpec = InputSpec.of({
   btc_conf: Value.number({
     name: 'BTC confirmations',
     required: true,
@@ -112,14 +168,26 @@ export const inputSpec = InputSpec.of({
     min: 1,
     integer: true,
   }),
-  price_reference: Value.toggle({
-    name: 'External price reference (nonkyc, over Tor)',
+})
+
+export const safety = sdk.Action.withInput(
+  'safety',
+  async ({ effects }) => ({
+    name: 'Safety',
     description:
-      'Fetch nonkyc BTCB2/BTC as a pricing hint, over Tor. Off by default; never relied on.',
-    default: DEFAULTS.price_reference,
+      'Confirmation depths and the timelock margin. The engine enforces its own minimums regardless.',
+    warning: null,
+    allowedStatuses: 'any',
+    group: 'Configuration',
+    visibility: 'enabled',
   }),
-  // Voluntary fee (design 0010). Off by default and until a legal opinion; a silent payment address
-  // pays a fresh, unlinkable output per swap. A BIP352-aware signer is required to enable it.
+  safetySpec,
+  current,
+  async ({ effects, input }) => saver(effects)({ input }),
+)
+
+// --- Fee (advanced) ---
+const feeSpec = InputSpec.of({
   fee_enabled: Value.toggle({
     name: 'Voluntary fee',
     description:
@@ -150,26 +218,68 @@ export const inputSpec = InputSpec.of({
     max: 100,
     integer: true,
   }),
+  price_reference: Value.toggle({
+    name: 'External price reference (nonkyc, over Tor)',
+    description:
+      'Fetch nonkyc BTCB2/BTC as a pricing hint, over Tor. Off by default; never relied on.',
+    default: DEFAULTS.price_reference,
+  }),
 })
 
-export const config = sdk.Action.withInput(
-  'config',
+export const fee = sdk.Action.withInput(
+  'fee',
   async ({ effects }) => ({
-    name: 'Node & swap settings',
+    name: 'Fee (advanced)',
     description:
-      'The node connection, relays, signer, confirmations, the optional price reference and the optional voluntary fee.',
+      'The optional voluntary fee (off by default) and the optional external price reference.',
     warning: null,
     allowedStatuses: 'any',
     group: 'Configuration',
     visibility: 'enabled',
   }),
-  inputSpec,
-  async ({ effects }) => settingsJson.read().once(),
-  async ({ effects, input }) => {
-    // Optional/masked text fields arrive as null when empty; the daemon wants strings.
-    const clean = Object.fromEntries(
-      Object.entries(input).map(([k, v]) => [k, v === null ? '' : v]),
-    ) as typeof DEFAULTS
-    await settingsJson.merge(effects, clean)
-  },
+  feeSpec,
+  current,
+  async ({ effects, input }) => saver(effects)({ input }),
+)
+
+// --- Web interface ---
+const webSpec = InputSpec.of({
+  web_enabled: Value.toggle({
+    name: 'Publish web interface',
+    description:
+      'Serve the web UI on this package interface. Off means the daemon runs headless (it keeps watching ' +
+      'and refunding swaps) and there is no web UI to reach, the smallest attack surface. You can also ' +
+      'toggle the address on the Interfaces page.',
+    default: DEFAULTS.web_enabled,
+  }),
+  web_username: Value.text({
+    name: 'Web UI username',
+    description: 'Username for the web UI login (HTTP Basic).',
+    required: true,
+    default: DEFAULTS.web_username,
+  }),
+  web_password: Value.text({
+    name: 'Web UI password',
+    description:
+      'Password for the web UI login. A strong one is generated on first install; change it here if you like.',
+    required: true,
+    default: null,
+    masked: true,
+  }),
+})
+
+export const webInterface = sdk.Action.withInput(
+  'web-interface',
+  async ({ effects }) => ({
+    name: 'Web interface',
+    description:
+      'Publish the web UI, and the username and password that gate it (Basic auth).',
+    warning: null,
+    allowedStatuses: 'any',
+    group: 'Configuration',
+    visibility: 'enabled',
+  }),
+  webSpec,
+  current,
+  async ({ effects, input }) => saver(effects)({ input }),
 )
