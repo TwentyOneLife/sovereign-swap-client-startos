@@ -1,4 +1,4 @@
-# sovereign-swap-client-startos — plan
+# sovereign-swap-client-startos - plan
 
 StartOS package for the sovereign-swap **client** (the daemon + web UI, design 0009 M4c). Scaffold:
 the package type-checks and bundles; the pieces below are the open integration items before it ships.
@@ -9,7 +9,7 @@ the package type-checks and bundles; the pieces below are the open integration i
   exposes it only through an authenticated Tor onion; the API token guards every route).
 - `interfaces.ts` a `ui` interface on port 8787 → Tor onion + LAN.
 - `actions/config.ts` + `fileModels/settings.json.ts` write the daemon's `settings.json` (node RPC,
-  relays, signer, confirmations, the opt-in price reference) — node config in the package, not the UI.
+  relays, signer, confirmations, the opt-in price reference) - node config in the package, not the UI.
 - `Dockerfile` builds the daemon and bundles `curl` (for the opt-in nonkyc price reference over Tor).
 
 ## Open items before release
