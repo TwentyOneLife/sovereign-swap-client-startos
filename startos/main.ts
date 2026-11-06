@@ -35,9 +35,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
 
   // The daemon binds the service bridge (not loopback) because StartOS exposes it only through the
   // package interface, which is itself Tor by default; SWAP_API_TRUST_NETWORK=1 is the explicit opt-in
-  // for that boundary. SWAP_CONFIG_LOCKED keeps node/relay config in the package action (the web UI
-  // shows it read-only), and SWAP_USERNAME/PASSWORD put the whole web UI behind HTTP Basic auth so the
-  // onion alone is not enough to reach the swaps. The password is generated on first run (init).
+  // for that boundary. Config lives only in the package actions (which write settings.json); the web UI
+  // is swaps-only. SWAP_USERNAME/PASSWORD put the whole web UI behind HTTP Basic auth so the onion alone
+  // is not enough to reach the swaps. The password is generated on first run (init).
   return sdk.Daemons.of(effects).addDaemon('primary', {
     subcontainer: container,
     exec: {
@@ -47,7 +47,6 @@ export const main = sdk.setupMain(async ({ effects }) => {
         SWAP_API_TRUST_NETWORK: '1',
         SWAP_DATA_DIR: '/mnt/client',
         SWAP_TOR_SOCKS: torSocks,
-        SWAP_CONFIG_LOCKED: '1',
         SWAP_USERNAME: settings?.web_username || 'sovereign',
         SWAP_PASSWORD: settings?.web_password || '',
       },

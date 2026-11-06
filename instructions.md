@@ -12,18 +12,32 @@ All configuration lives in **Actions & Config**, split into focused sections so 
 form: **Nodes (RPC)**, **Relays and signer**, **Safety**, **Fee (advanced)**, and **Web interface**.
 The web UI shows these read-only; this is the one place they are edited.
 
-Point the client at your own nodes (Nodes (RPC)):
+### 1. Create a stable RPC login on each node
 
-- **BTC node** and **xBTC node**: the RPC endpoint and credentials of your Bitcoin Core and Bitcoin
-  Knots BLAKE2b nodes. A StartOS node's RPC is HTTPS, so the endpoint is `https://host:port`: use the
-  node's **Tor address** (`https://…onion:port`) to reach a node on another server, or its **Local**
-  address on the same network. Both chains cannot run on one StartOS server, so at least one node is
-  normally reached over Tor. The node connection is set here, in the package config, not in the web page.
+Your client logs in to each node's RPC with a username and password. On a StartOS node, generate a
+fixed one (once per node, it survives restarts):
+
+1. Open the node's service (**Bitcoin Core**, and separately **Bitcoin Knots BLAKE2b**) →
+   **Actions & Config**.
+2. Scroll down to the **RPC Users** group (below "Configuration" and "Delete Corrupted Files") and run
+   **Generate RPC User Credentials**.
+3. Enter a username (for example `swap`) and run it. **Copy the password it shows once** and store it in
+   your password manager: the node keeps only a hash, so a lost password means generating a new user.
+
+### 2. Point the client at your nodes (Nodes (RPC))
+
+- **BTC node** and **xBTC node**: the RPC endpoint of your Bitcoin Core and Bitcoin Knots BLAKE2b nodes.
+  A StartOS node's RPC is HTTPS, so the endpoint is `https://host:port` (find it on the node under
+  **Interfaces → RPC**): use the node's **Local** address on the same network, or its **Tor address**
+  (`https://…onion:port`) for a node on another server. Both chains cannot run on one StartOS server, so
+  at least one node is normally reached over Tor. This is set here, in the package config, not in the web page.
+- **RPC user / password**: the username and the password from step 1, per node.
 - **Root CA (PEM)**: for an `https://` node on your network, paste that node's **StartOS Root CA** (from
   the node's System settings) so the connection is verified. Leave it empty for a Tor onion (Tor
   authenticates the endpoint) or a plain `http://` loopback node.
-- **Tor SOCKS proxy**: how the client reaches an `.onion` node or relay. The StartOS default is usually
-  correct; change it only if your Tor proxy listens elsewhere.
+
+Because all of this is set through **Actions & Config**, it is saved by StartOS and survives package
+updates; you only revisit it if you move a node or rotate its credential.
 - **Relays**: one or more swap relays (Nostr, event kind 4859), Tor-first (`ws://…onion`). List
   several; no single relay is a chokepoint, and a relay going offline cannot endanger a swap.
 - **Signer**: leave on **Cold / watch-only** so the daemon proposes and an external signer approves;
@@ -38,13 +52,14 @@ Point the client at your own nodes (Nodes (RPC)):
 ## Use it
 
 Open the service's **Web Interface**. It is reached over Tor by default and is behind your username and
-password (set in **Web interface**); inside, every call also carries a per-session token:
+password (set in **Web interface**); inside, every call also carries a per-session token. The web
+interface is for the swaps themselves only, **Market** and **Swaps**; all configuration lives in
+**Actions & Config** and is never shown or editable in the web page.
 
 - **Market**: offers discovered on your relays; create an offer, or take one. Amounts accept both
   `0.5` and `0,5`; the "you receive" figure updates live.
 - **Swaps**: your swaps, live and past, with each leg's phase, confirmations and the refund
   countdown. Closing and reopening the browser never loses a swap: it resumes from the daemon.
-- **Settings**: the same preferences as the package config, for a plain (non-StartOS) daemon.
 
 ## The voluntary fee
 

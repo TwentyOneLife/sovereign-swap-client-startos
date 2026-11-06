@@ -83,15 +83,6 @@ const nodesSpec = InputSpec.of({
     default: DEFAULTS.xbtc_rpc_ca,
     placeholder: '-----BEGIN CERTIFICATE-----',
   }),
-  tor_socks: Value.text({
-    name: 'Tor SOCKS proxy',
-    description:
-      'The Tor SOCKS5 proxy used to reach an .onion node or relay. The StartOS default is usually ' +
-      'correct; change it only if your Tor proxy listens elsewhere.',
-    required: true,
-    default: DEFAULTS.tor_socks,
-    placeholder: '127.0.0.1:9050',
-  }),
 })
 
 export const nodes = sdk.Action.withInput(
@@ -99,7 +90,9 @@ export const nodes = sdk.Action.withInput(
   async ({ effects }) => ({
     name: 'Nodes (RPC)',
     description:
-      'Your BTC and xBTC (Knots BLAKE2b) node RPC endpoints, credentials, Root CAs, and the Tor proxy.',
+      'Your BTC and xBTC (Knots BLAKE2b) node RPC endpoints, credentials, and Root CAs. Generate each ' +
+      'login once on the node under Actions & Config > RPC Users > Generate RPC User Credentials, then ' +
+      'paste the username and password here.',
     warning: null,
     allowedStatuses: 'any',
     group: 'Configuration',
