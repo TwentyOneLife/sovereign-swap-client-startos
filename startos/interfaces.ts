@@ -14,7 +14,8 @@ export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   const iface = sdk.createInterface(effects, {
     name: 'Web UI',
     id: 'main',
-    description: 'The sovereign-swap client web UI, reached over Tor by default.',
+    description:
+      'The sovereign-swap client web UI, reached over Tor by default.',
     type: 'ui',
     masked: false,
     schemeOverride: { ssl: 'https', noSsl: 'http' },
