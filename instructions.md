@@ -8,7 +8,11 @@ claimed or refunded.
 
 ## Set it up
 
-Open **Actions → Node and swap settings** and point the client at your own nodes:
+All configuration lives in **Actions & Config**, split into focused sections so nothing is one long
+form: **Nodes (RPC)**, **Relays and signer**, **Safety**, **Fee (advanced)**, and **Web interface**.
+The web UI shows these read-only; this is the one place they are edited.
+
+Point the client at your own nodes (Nodes (RPC)):
 
 - **BTC node** and **xBTC node**: the RPC endpoint and credentials of your Bitcoin Core and Bitcoin
   Knots BLAKE2b nodes. A StartOS node's RPC is HTTPS, so the endpoint is `https://host:port`: use the
@@ -26,10 +30,15 @@ Open **Actions → Node and swap settings** and point the client at your own nod
   **Hot** is for regtest only.
 - **Confirmations** and **timelock margin**: the safety depths. The defaults are sane; the engine
   enforces its own minimums regardless of what an offer asks for.
+- **Web interface**: whether to publish the web UI at all, and the **username and password** that gate
+  it. A strong password is generated on first install; see and change it here. Turning the interface
+  off runs the client headless (it keeps watching and refunding swaps) with no web UI to reach, the
+  smallest attack surface. You can also toggle the address on the **Interfaces** page.
 
 ## Use it
 
-Open the service's **Web Interface**. It is served only to you, on loopback, behind a token:
+Open the service's **Web Interface**. It is reached over Tor by default and is behind your username and
+password (set in **Web interface**); inside, every call also carries a per-session token:
 
 - **Market**: offers discovered on your relays; create an offer, or take one. Amounts accept both
   `0.5` and `0,5`; the "you receive" figure updates live.

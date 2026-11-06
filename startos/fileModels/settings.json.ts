@@ -28,6 +28,12 @@ export const DEFAULTS = {
   fee_sp_address: '',
   fee_maker_bps: 20,
   fee_taker_bps: 30,
+  // Web interface: whether to publish it at all, and the HTTP Basic credentials that gate it. The
+  // password is generated randomly on first run (init) so the UI is never open by default; the user
+  // can change both in the Web interface config action.
+  web_enabled: true,
+  web_username: 'sovereign',
+  web_password: '',
 }
 
 export const shape = z
@@ -51,6 +57,9 @@ export const shape = z
     fee_sp_address: z.string().catch(''),
     fee_maker_bps: z.number().int().catch(20),
     fee_taker_bps: z.number().int().catch(30),
+    web_enabled: z.boolean().catch(true),
+    web_username: z.string().catch('sovereign'),
+    web_password: z.string().catch(''),
   })
   .strip()
 
