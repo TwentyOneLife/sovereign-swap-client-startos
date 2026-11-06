@@ -10,8 +10,16 @@ claimed or refunded.
 
 Open **Actions → Node and swap settings** and point the client at your own nodes:
 
-- **BTC node** and **xBTC node**: the RPC address and credentials of your Bitcoin Core and Bitcoin
-  Knots BLAKE2b nodes. The node connection is set here, in the package config, not in the web page.
+- **BTC node** and **xBTC node**: the RPC endpoint and credentials of your Bitcoin Core and Bitcoin
+  Knots BLAKE2b nodes. A StartOS node's RPC is HTTPS, so the endpoint is `https://host:port`: use the
+  node's **Tor address** (`https://…onion:port`) to reach a node on another server, or its **Local**
+  address on the same network. Both chains cannot run on one StartOS server, so at least one node is
+  normally reached over Tor. The node connection is set here, in the package config, not in the web page.
+- **Root CA (PEM)**: for an `https://` node on your network, paste that node's **StartOS Root CA** (from
+  the node's System settings) so the connection is verified. Leave it empty for a Tor onion (Tor
+  authenticates the endpoint) or a plain `http://` loopback node.
+- **Tor SOCKS proxy**: how the client reaches an `.onion` node or relay. The StartOS default is usually
+  correct; change it only if your Tor proxy listens elsewhere.
 - **Relays**: one or more swap relays (Nostr, event kind 4859), Tor-first (`ws://…onion`). List
   several; no single relay is a chokepoint, and a relay going offline cannot endanger a swap.
 - **Signer**: leave on **Cold / watch-only** so the daemon proposes and an external signer approves;
