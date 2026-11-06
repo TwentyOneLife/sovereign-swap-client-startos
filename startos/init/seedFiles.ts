@@ -11,9 +11,13 @@ function randomPassword(): string {
 }
 
 export const seedFiles = sdk.setupOnInit(async (effects) => {
-  await settingsJson.merge(effects, DEFAULTS)
-  // Generate the web UI password on first run only; never overwrite one the user has set.
+  // setupOnInit runs on install AND on every package update. `merge` lets the provided value win
+  // (fileMerge(existing, data)), so a plain `merge(DEFAULTS)` would overwrite the node, relay, and web
+  // settings the user set in Actions & Config, wiping their config on every update. Read the current
+  // config first and let it win over DEFAULTS, so only genuinely missing keys are seeded.
   const current = await settingsJson.read().once()
+  await settingsJson.merge(effects, { ...DEFAULTS, ...(current ?? {}) })
+  // Generate the web UI password on first run only; never overwrite one the user has set.
   if (!current?.web_password) {
     await settingsJson.merge(effects, { web_password: randomPassword() })
   }
