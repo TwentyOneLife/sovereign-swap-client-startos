@@ -4,10 +4,10 @@ import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 // (`0.2.0:0` -> `0.2.0:1`), keep `other: []`, and keep this migration a no-op. Bump the version
 // proper and add a migration node only for a real data migration.
 export const current = VersionInfo.of({
-  version: '0.2.0:5',
+  version: '0.2.0:6',
   releaseNotes: {
     en_US:
-      'The web UI is now also reachable on the LAN over StartOS-terminated HTTPS, so the "Open UI" button works, while the Tor onion stays the default address. Auth is unchanged: the web password and the API token are still required on every request from any address. Pins daemon v0.3.4.',
+      'The web interface is now swaps-only (Market and Swaps); all configuration lives in Actions & Config and is never shown or editable in the web page, so node credentials are never served to the web layer. Instructions walk through generating a stable RPC login on each node (RPC Users). Removed the inert Tor SOCKS proxy field. Pins daemon v0.3.5.',
   },
   migrations: { up: async ({ effects }) => {}, down: IMPOSSIBLE },
 })
