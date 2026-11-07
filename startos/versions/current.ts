@@ -4,10 +4,10 @@ import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 // (`0.2.0:0` -> `0.2.0:1`), keep `other: []`, and keep this migration a no-op. Bump the version
 // proper and add a migration node only for a real data migration.
 export const current = VersionInfo.of({
-  version: '0.2.0:10',
+  version: '0.2.0:11',
   releaseNotes: {
     en_US:
-      'Adds relay and price-reference status dots to the web UI header, so you can see at a glance which dependencies are up. Fixes the external price reference, which was dialing a Tor proxy that does not exist inside the container; it now uses the same node Tor proxy as everything else. Pins daemon v0.3.8.',
+      'Turns the voluntary fee on by default, paying the project per-chain BTC and xBTC addresses. The fee is part of the offer terms and your counterparty verifies it; you can change the addresses or turn it off in the Fee action, and the commercial licence covers removing or redirecting it (see COMMERCIAL.md). A fresh install picks this up; an existing install keeps whatever you have set. Pins daemon v0.3.8.',
   },
   migrations: { up: async ({ effects }) => {}, down: IMPOSSIBLE },
 })
