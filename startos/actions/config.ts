@@ -4,19 +4,30 @@ import { sdk } from '../sdk'
 const { InputSpec, Value, List } = sdk
 
 // Configuration is split into focused actions (one window each) rather than one long form: Nodes,
-// Relays and signer, Safety, Fee, and Web interface. Each reads the current settings and merges only
-// its own fields, so they share one settings.json without stepping on each other. Node and relay
-// config lives here, not in the web UI (design 0009), and the web UI shows it read-only.
+// Relays and signer, Safety, Fee, Funding, and Web interface. Each reads the current settings and
+// merges only its own fields, so they share one settings.json without stepping on each other. Node
+// and relay config lives here, not in the web UI (design 0009), and the web UI shows it read-only.
 
-// Optional/masked text fields arrive as null when empty; the daemon wants strings. Merge only the
-// fields the action owns.
+// Optional/masked text fields arrive as null when empty; the daemon wants strings. Recurse into a
+// nested object (the per-chain funding config) so its empty fields become '' too, and leave arrays
+// (the relay list) untouched. Merge only the fields the action owns.
+const nullsToEmpty = (v: unknown): unknown =>
+  v === null
+    ? ''
+    : typeof v === 'object' && !Array.isArray(v)
+      ? Object.fromEntries(
+          Object.entries(v as Record<string, unknown>).map(([k, val]) => [
+            k,
+            nullsToEmpty(val),
+          ]),
+        )
+      : v
+
 const saver =
   (effects: Parameters<typeof settingsJson.merge>[0]) =>
   async ({ input }: { input: Record<string, unknown> }) => {
-    const clean = Object.fromEntries(
-      Object.entries(input).map(([k, v]) => [k, v === null ? '' : v]),
-    )
-    await settingsJson.merge(effects, clean as Partial<typeof DEFAULTS>)
+    const clean = nullsToEmpty(input) as Partial<typeof DEFAULTS>
+    await settingsJson.merge(effects, clean)
   }
 
 const current = async () => settingsJson.read().once()
@@ -144,17 +155,15 @@ const relaysSignerSpec = InputSpec.of({
     ),
   ),
   signer: Value.select({
-    name: 'Signer',
+    name: 'Signer (legacy, not used)',
     description:
-      'Where the keys that spend your funds live. Today only Hot is actually wired: the engine funds ' +
-      'each swap from the connected node wallet, so the spending keys are on this node. Cold / watch-only ' +
-      '(a separate signer that holds the keys off this host) is designed but not yet implemented, so ' +
-      'selecting it does not yet change behaviour. Until Cold ships, treat any funds in the node wallet as ' +
-      'hot and do not put in more than you would keep on an online wallet. Hot is also the correct choice ' +
-      'for regtest testing.',
+      'A legacy global signer switch, kept only so an older config still parses. The daemon no longer ' +
+      'reads it: funding mode is now set per chain in the Funding (advanced) action, which is ' +
+      'authoritative. Leave this as it is and use Funding (advanced) to choose Hot or Cold for BTC and ' +
+      'xBTC. Hot is the correct choice for regtest testing.',
     default: 'cold',
     values: {
-      cold: 'Cold / watch-only (not yet wired)',
+      cold: 'Cold / watch-only (set per chain in Funding)',
       hot: 'Hot (node wallet)',
     },
   }),
@@ -165,7 +174,8 @@ export const relaysSigner = sdk.Action.withInput(
   async ({ effects }) => ({
     name: 'Relays and signer',
     description:
-      'The swap relays (Nostr, Tor-first) and whether spending keys stay offline.',
+      'The swap relays (Nostr, Tor-first). The signer field here is legacy and unused; set funding ' +
+      'mode per chain in Funding (advanced).',
     warning: null,
     allowedStatuses: 'any',
     group: 'Configuration',
@@ -321,6 +331,154 @@ export const fee = sdk.Action.withInput(
     visibility: 'enabled',
   }),
   feeSpec,
+  current,
+  async ({ effects, input }) => saver(effects)({ input }),
+)
+
+// --- Funding (advanced) ---
+// Per-chain funding mode and cold signer config (design 0012). One Value.object per chain so the
+// fields nest under btc_funding / xbtc_funding exactly as the daemon's FundingConfig serde expects;
+// the generic current() prefills each object straight from settings.json with no remapping.
+const fundingFields = (chain: string, walletHint: string) =>
+  InputSpec.of({
+    mode: Value.select({
+      name: 'Funding mode',
+      description:
+        `Where the keys that fund a swap on the ${chain} side live. Hot (the default) means this ` +
+        "package's node wallet holds the funding keys and signs each lock itself, so the keys sit on " +
+        'this engine host; it is the right choice for regtest and small dust tests, and it is the ' +
+        'default, so an existing install stays hot unless you change this. Cold means the funding ' +
+        'wallet here is kept watch-only and a separate, always-on external signer holds the keys and ' +
+        'signs, so no key to your balance lives on this host and a compromise of this node can only ' +
+        'propose a funding transaction. Cold is not on its own a guarantee your coins cannot move: it ' +
+        'holds only if the signer validates each request and does not blind-sign, and the per-swap ' +
+        'claim and refund keys stay online regardless, so in-flight value is still exposed briefly. ' +
+        'Cold needs a reachable signer and both account descriptors below; with Cold selected and the ' +
+        'endpoint or a descriptor missing, or the signer unreachable, the daemon refuses to start ' +
+        'rather than ever fund hot. Cold expects a funding wallet that has never held keys: an install ' +
+        'that already ran Hot on this chain is refused (its wallet holds keys) until a hot-to-cold ' +
+        'migration path exists (design 0012). After switching to Cold, send funds to the cold account, ' +
+        'because only coins received after the switch are tracked (the import does no rescan). Cold ' +
+        'funding also needs a daemon release that supports it and a running signer (the reference ' +
+        'signer is sovereign-swap-signer); leave this on Hot until then.',
+      default: 'hot',
+      values: {
+        hot: 'Hot (node wallet)',
+        cold: 'Cold (external signer)',
+      },
+    }),
+    signer_endpoint: Value.text({
+      name: 'Signer endpoint',
+      description:
+        `The ${chain} external signer's endpoint, used only in Cold mode. It takes the same forms as a ` +
+        'node RPC endpoint (design 0011) and is reached the same way: an https://host:port address on ' +
+        'your LAN, or a Tor onion (https://…onion:port) through the Tor proxy. The daemon sends each ' +
+        'unsigned funding PSBT here and the signer returns it signed or refuses; the signer finalises ' +
+        'nothing and never receives a key from this host. Required in Cold mode, where the daemon ' +
+        'refuses to start with this empty. Leave empty for Hot.',
+      required: false,
+      default: '',
+      placeholder: 'https://…onion:8080',
+    }),
+    signer_user: Value.text({
+      name: 'Signer RPC user',
+      description:
+        `The RPC username that authenticates this package to the ${chain} signer, the same kind of ` +
+        'credential as a node RPC login. Stored by the package and sent only to the signer, never shown ' +
+        'in the web UI and never logged. Used only in Cold mode.',
+      required: false,
+      default: '',
+      placeholder: 'swap',
+    }),
+    signer_pass: Value.text({
+      name: 'Signer RPC password',
+      description:
+        `The RPC password for the ${chain} signer user above. Stored by the package, sent only to the ` +
+        'signer, never shown in the web UI and never logged. Used only in Cold mode.',
+      required: false,
+      default: '',
+      masked: true,
+    }),
+    signer_ca: Value.textarea({
+      name: 'Signer Root CA (PEM)',
+      description:
+        `The ${chain} signer's Root CA, in PEM, used only in Cold mode and only when the endpoint above ` +
+        'is an https:// address on your LAN (a self-signed certificate no public CA vouches for). It ' +
+        'verifies the signer to this package; it does not authenticate you (the username and password do ' +
+        'that). Leave empty for a Tor onion signer, where Tor authenticates the endpoint, or a plain-http ' +
+        'loopback signer.',
+      required: false,
+      default: '',
+      placeholder: '-----BEGIN CERTIFICATE-----',
+    }),
+    descriptor_receive: Value.text({
+      name: 'Receive account descriptor',
+      description:
+        `The ${chain} receive (external) account output descriptor for the watch-only funding wallet, ` +
+        'used only in Cold mode. It is public key material (an xpub-based output descriptor), never a ' +
+        'private key: the daemon imports it so it can watch your balance and build a funded PSBT for the ' +
+        `signer to sign. Get it from your ${walletHint}, for the account that holds the funds you want to ` +
+        'swap on this chain. Paste it with or without the trailing #checksum; the daemon canonicalizes ' +
+        'it. Required in Cold mode; the daemon refuses to start Cold without both descriptors. Keep the ' +
+        "two chains' descriptors separate: the two chains share Bitcoin's address format, so one cannot " +
+        'stand in for the other.',
+      required: false,
+      default: '',
+      masked: true,
+      placeholder: 'wpkh([fingerprint/84h/0h/0h]xpub.../0/*)',
+    }),
+    descriptor_change: Value.text({
+      name: 'Change account descriptor',
+      description:
+        `The ${chain} change (internal) account output descriptor for the same watch-only funding ` +
+        'wallet, the counterpart to the receive descriptor above, so the wallet can hold the change from ' +
+        'a funding transaction. Same source and same rule: public key material only, never a private ' +
+        'key, with or without the #checksum, and required in Cold mode.',
+      required: false,
+      default: '',
+      masked: true,
+      placeholder: 'wpkh([fingerprint/84h/0h/0h]xpub.../1/*)',
+    }),
+  })
+
+const fundingSpec = InputSpec.of({
+  btc_funding: Value.object(
+    {
+      name: 'BTC funding',
+      description:
+        'Hot (node wallet) or Cold (external signer) for the BTC side, and the signer endpoint, ' +
+        'credentials and watch-only account descriptors that Cold needs.',
+    },
+    fundingFields('BTC', 'BTC signer or wallet (for example Sparrow)'),
+  ),
+  xbtc_funding: Value.object(
+    {
+      name: 'xBTC funding',
+      description:
+        'The same for the xBTC (Bitcoin Knots BLAKE2b) side. A separate signer and descriptors from ' +
+        'BTC: the two chains can run different signers, one cold and one hot if you like.',
+    },
+    fundingFields('xBTC', 'xBTC signer or wallet (for example Shrike)'),
+  ),
+})
+
+export const fundingMode = sdk.Action.withInput(
+  'funding',
+  async ({ effects }) => ({
+    name: 'Funding (advanced)',
+    description:
+      'Per-chain funding mode: keep the funding keys on this node (Hot, the default and the regtest ' +
+      'choice) or move them to a separate external signer so no key to your balance lives on this host ' +
+      '(Cold). Cold needs a reachable signer and both account descriptors; set them per chain below.',
+    warning:
+      'The daemon bundled with this package does not yet act on cold funding. Until it is updated, ' +
+      'selecting Cold has no effect and the service keeps funding hot. Do not rely on Cold for real ' +
+      'funds until a package release notes that cold funding is supported.',
+    allowedStatuses: 'any',
+    group: 'Configuration',
+    visibility: 'enabled',
+  }),
+  fundingSpec,
   current,
   async ({ effects, input }) => saver(effects)({ input }),
 )
