@@ -359,8 +359,8 @@ const fundingFields = (chain: string, walletHint: string) =>
         'that already ran Hot on this chain is refused (its wallet holds keys) until a hot-to-cold ' +
         'migration path exists (design 0012). After switching to Cold, send funds to the cold account, ' +
         'because only coins received after the switch are tracked (the import does no rescan). Cold ' +
-        'funding also needs a daemon release that supports it and a running signer (the reference ' +
-        'signer is sovereign-swap-signer); leave this on Hot until then.',
+        'funding needs a running signer the daemon can reach (the reference signer is ' +
+        'sovereign-swap-signer).',
       default: 'hot',
       values: {
         hot: 'Hot (node wallet)',
@@ -470,10 +470,7 @@ export const fundingMode = sdk.Action.withInput(
       'Per-chain funding mode: keep the funding keys on this node (Hot, the default and the regtest ' +
       'choice) or move them to a separate external signer so no key to your balance lives on this host ' +
       '(Cold). Cold needs a reachable signer and both account descriptors; set them per chain below.',
-    warning:
-      'The daemon bundled with this package does not yet act on cold funding. Until it is updated, ' +
-      'selecting Cold has no effect and the service keeps funding hot. Do not rely on Cold for real ' +
-      'funds until a package release notes that cold funding is supported.',
+    warning: null,
     allowedStatuses: 'any',
     group: 'Configuration',
     visibility: 'enabled',
