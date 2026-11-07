@@ -21,9 +21,12 @@ export const DEFAULTS = {
   btc_rpc_ca: '',
   xbtc_rpc_ca: '',
   price_reference: false,
-  // Voluntary fee, off by default (design 0010); stays off until a legal opinion.
+  // Voluntary fee, off by default (design 0010). The fee address is per chain (design 0013): the side
+  // locking BTC pays fee_btc_address, the side locking xBTC pays fee_xbtc_address. Kept separate
+  // because the two chains share Bitcoin's address format, so one must never stand in for the other.
   fee_enabled: false,
-  fee_sp_address: '',
+  fee_btc_address: '',
+  fee_xbtc_address: '',
   fee_maker_bps: 20,
   fee_taker_bps: 30,
   // Web interface: whether to publish it at all, and the HTTP Basic credentials that gate it. The
@@ -51,7 +54,8 @@ export const shape = z
     xbtc_rpc_ca: z.string().catch(''),
     price_reference: z.boolean().catch(false),
     fee_enabled: z.boolean().catch(false),
-    fee_sp_address: z.string().catch(''),
+    fee_btc_address: z.string().catch(''),
+    fee_xbtc_address: z.string().catch(''),
     fee_maker_bps: z.number().int().catch(20),
     fee_taker_bps: z.number().int().catch(30),
     web_enabled: z.boolean().catch(true),

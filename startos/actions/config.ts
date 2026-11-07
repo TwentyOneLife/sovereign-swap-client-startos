@@ -137,7 +137,7 @@ const relaysSignerSpec = InputSpec.of({
           '(ws:// or wss://); a Tor onion (ws://…onion:7777) is preferred so your trading is not tied to ' +
           'your IP. These are the swap relays (for example a sovereign-swap-relay you or a peer run), not ' +
           'a personal social Nostr relay. You and a counterparty must share at least one relay to find ' +
-          "each other. With none set you can still watch and refund in-flight swaps, but you cannot see " +
+          'each other. With none set you can still watch and refund in-flight swaps, but you cannot see ' +
           'the market or post offers.',
       },
       { placeholder: 'ws://…onion:7777' },
@@ -153,7 +153,10 @@ const relaysSignerSpec = InputSpec.of({
       'hot and do not put in more than you would keep on an online wallet. Hot is also the correct choice ' +
       'for regtest testing.',
     default: 'cold',
-    values: { cold: 'Cold / watch-only (not yet wired)', hot: 'Hot (node wallet)' },
+    values: {
+      cold: 'Cold / watch-only (not yet wired)',
+      hot: 'Hot (node wallet)',
+    },
   }),
 })
 
@@ -204,7 +207,7 @@ const safetySpec = InputSpec.of({
     name: 'Timelock margin (blocks)',
     description:
       'A safety buffer, in blocks, between the moment you must act (claim or refund) and the moment a ' +
-      "timelock actually expires. It absorbs slow blocks, mempool congestion, and your node being briefly " +
+      'timelock actually expires. It absorbs slow blocks, mempool congestion, and your node being briefly ' +
       'offline, so a refund or claim is not missed by a hair. Larger is safer but lengthens the worst-case ' +
       'time your funds can be tied up in a stuck swap. Leave at the default unless you know you need more.',
     required: true,
@@ -238,25 +241,36 @@ const feeSpec = InputSpec.of({
   fee_enabled: Value.toggle({
     name: 'Voluntary fee',
     description:
-      'Add a small voluntary fee output to every offer you make. The fee is part of the offer terms: both ' +
-      'sides pay their share to the fee address below when the swap settles, so it is visible to your ' +
-      'counterparty and enforced by the protocol, not a hidden charge. It supports the project that builds ' +
-      'and runs this software. The fee output is a BIP352 silent payment, so it works only while the ' +
-      'engine can sign with the spending key (the current hot node wallet can; a future cold signer must ' +
-      'be BIP352-aware). Leave an empty fee address below and this stays off.',
+      'Add a small voluntary fee output to every offer you make. The fee is part of the offer terms: ' +
+      'each side pays its share to the fee address for the chain it locks, so it is visible to your ' +
+      'counterparty and verified by the protocol, not a hidden charge. It supports the project that ' +
+      'builds this software. Set the per-chain fee address below; leave both empty and this stays off. ' +
+      'If the fee is on but an address for a chain is set and invalid, the engine refuses to lock ' +
+      'rather than swap without the fee your counterparty expects.',
     default: DEFAULTS.fee_enabled,
   }),
-  fee_sp_address: Value.text({
-    name: 'Fee address (silent payment)',
+  fee_btc_address: Value.text({
+    name: 'BTC fee address',
     required: false,
-    default: DEFAULTS.fee_sp_address,
-    placeholder: 'sp1...',
+    default: DEFAULTS.fee_btc_address,
+    placeholder: 'sp1... or a normal BTC address',
     description:
-      'The BIP352 silent payment address the voluntary fee pays to. A silent payment address lets every ' +
-      'swap pay a fresh, unlinkable output, so enabling the fee does not publish one reused address. ' +
-      'Required when the fee above is on; if the fee is on and this is empty or invalid, the engine ' +
-      'refuses to lock rather than swap without the fee your counterparty expects. A pre-filled address ' +
-      'here is the project default; replace it with your own to direct the fee to yourself.',
+      'Where the fee on the BTC side of a swap pays. Use a silent payment address (starts with sp1, ' +
+      'private: a fresh unlinkable output per swap) or a normal BTC address (easy to watch in any wallet, ' +
+      'but it reuses one address on chain). This is your BTC address, from your Sparrow wallet. Do not ' +
+      'paste an xBTC address here: the two chains use the same address format, so nothing can catch the ' +
+      'mistake and the fee would be unspendable. Leave empty for no fee on the BTC side.',
+  }),
+  fee_xbtc_address: Value.text({
+    name: 'xBTC fee address',
+    required: false,
+    default: DEFAULTS.fee_xbtc_address,
+    placeholder: 'sp1... or a normal xBTC address',
+    description:
+      'Where the fee on the xBTC (Bitcoin Knots BLAKE2b) side of a swap pays. A silent payment address ' +
+      '(starts with sp1) or a normal xBTC address, from your Shrike wallet. Keep it separate from the ' +
+      'BTC address above: an address for the wrong chain cannot be detected and the fee would be lost. ' +
+      'Leave empty for no fee on the xBTC side.',
   }),
   fee_maker_bps: Value.number({
     name: 'Maker fee (basis points)',
