@@ -21,12 +21,17 @@ export const DEFAULTS = {
   btc_rpc_ca: '',
   xbtc_rpc_ca: '',
   price_reference: false,
-  // Voluntary fee, off by default (design 0010). The fee address is per chain (design 0013): the side
-  // locking BTC pays fee_btc_address, the side locking xBTC pays fee_xbtc_address. Kept separate
-  // because the two chains share Bitcoin's address format, so one must never stand in for the other.
-  fee_enabled: false,
-  fee_btc_address: '',
-  fee_xbtc_address: '',
+  // Voluntary fee, on by default, paying the project's per-chain addresses (design 0013). The fee is
+  // part of the offer terms and the counterparty verifies it; an operator can change the addresses or
+  // turn the fee off in the Fee config action, and the commercial licence covers removing or
+  // redirecting it (see COMMERCIAL.md). The address is per chain: the side locking BTC pays
+  // fee_btc_address, the side locking xBTC pays fee_xbtc_address, kept separate because the two chains
+  // share Bitcoin's address format, so one must never stand in for the other.
+  fee_enabled: true,
+  fee_btc_address:
+    'bc1p37x3ehmhdy6s40fuy0haw9sv9pmyjdqz5wulvm93jry4fy63ttksxja9sh',
+  fee_xbtc_address:
+    'bc1pe62v4m0p6njpxn2ej9hx307tm0xlccnxe652vxk9r76g2qync7sqkfly4t',
   fee_maker_bps: 20,
   fee_taker_bps: 30,
   // Web interface: whether to publish it at all, and the HTTP Basic credentials that gate it. The
