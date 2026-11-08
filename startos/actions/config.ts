@@ -225,6 +225,29 @@ const safetySpec = InputSpec.of({
     min: 1,
     integer: true,
   }),
+  min_swap_sat: Value.number({
+    name: 'Smallest swap leg (sats)',
+    description:
+      'The smallest amount, in satoshis, either leg of a swap may be. It bounds both the amount you offer ' +
+      'and each bid, so a trade is never so small that the fixed claim or refund miner fee eats it. The ' +
+      'floor is 3000 sats; the engine refuses to start below it. Raise it if you only want to do larger ' +
+      'swaps.',
+    required: true,
+    default: DEFAULTS.min_swap_sat,
+    min: 3000,
+    integer: true,
+  }),
+  min_trade_sat: Value.number({
+    name: 'Smallest fee-bearing trade (sats)',
+    description:
+      'The smallest trade, in satoshis, that the voluntary fee applies to. Below this a swap pays no fee. ' +
+      'Only relevant when the fee is enabled; it keeps a tiny test swap from paying a floor-sized fee out ' +
+      'of all proportion.',
+    required: true,
+    default: DEFAULTS.min_trade_sat,
+    min: 0,
+    integer: true,
+  }),
 })
 
 export const safety = sdk.Action.withInput(
