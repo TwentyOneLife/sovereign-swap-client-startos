@@ -4,10 +4,10 @@ import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 // (`0.2.0:0` -> `0.2.0:1`), keep `other: []`, and keep this migration a no-op. Bump the version
 // proper and add a migration node only for a real data migration.
 export const current = VersionInfo.of({
-  version: '0.2.0:16',
+  version: '0.2.0:17',
   releaseNotes: {
     en_US:
-      'Pins daemon v0.4.1 (safety and interface fixes): a taker whose funding stalls now gives up on its own instead of locking late, a filled offer is cleared from other nodes too, and only the maker who made an offer can take it off the market. In the interface, a taker now sees its own leg and the counterparty leg labelled correctly, and the price dot shows orange when the rate source is enabled but not reachable and red when it is off.',
+      'Adds the smallest-swap-leg and smallest-fee-bearing-trade minimums to the Safety settings, so an operator can set them from the interface instead of editing the settings file by hand. Defaults are unchanged (10000 and 100000 sats); the smallest leg has a 3000-sat floor.',
   },
   migrations: { up: async ({ effects }) => {}, down: IMPOSSIBLE },
 })
