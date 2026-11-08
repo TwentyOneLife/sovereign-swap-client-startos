@@ -4,16 +4,15 @@ import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 // (`0.2.0:0` -> `0.2.0:1`), keep `other: []`, and keep this migration a no-op. Bump the version
 // proper and add a migration node only for a real data migration.
 export const current = VersionInfo.of({
-  version: '0.2.0:19',
+  version: '0.2.0:20',
   releaseNotes: {
     en_US:
-      'Ships sovereign-swap daemon v0.6.0. The voluntary fee is now ON by default for a fresh install ' +
-      '(paying the project addresses); an existing install is never changed. Discovered offers now ' +
-      'carry a last-seen time and age out of the market once stale, so a withdrawn or abandoned offer ' +
-      'no longer lingers. Claim and refund fee bumps are now BIP125-safe and recorded only after the ' +
-      'broadcast is accepted. A below-minimum bid now logs why it was dropped, and a sanity band ' +
-      'refuses an offer whose voluntary fee would be a disproportionate share of the leg. No config ' +
-      'migration; existing settings load unchanged.',
+      'Ships sovereign-swap daemon v0.6.1: a web-interface refresh. The Swaps and Market tables now ' +
+      'have a date/time column and open newest-first, every column header sorts, they page five rows ' +
+      'at a time, and clicking a row expands its detail in place beneath it with a collapse. Swap ' +
+      'transaction ids link to your configured block explorer when set. The Create/Take dialog button ' +
+      'is now "Close" (it only dismisses the dialog), and you can enter an exact counter amount for a ' +
+      'lopsided real rate. No logic or config change from v0.6.0.',
   },
   migrations: { up: async ({ effects }) => {}, down: IMPOSSIBLE },
 })
