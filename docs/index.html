@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>sovereign-swap - non-custodial BTC / xBTC atomic swaps</title>
+<style>
+  :root {
+    --bg: #11131a; --fg: #e7e9ee; --muted: #9aa3b2; --card: #171a23;
+    --line: #272c38; --accent: #f2a900; --ok: #3fb950;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  }
+  a { color: var(--accent); }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+  header { padding: 56px 0 24px; }
+  .brand { font-size: 15px; letter-spacing: .04em; color: var(--muted); }
+  h1 { font-size: 34px; line-height: 1.2; margin: 10px 0 8px; }
+  .lede { font-size: 19px; color: var(--muted); margin: 0 0 24px; }
+  .tags { color: var(--muted); font-size: 14px; margin: 0 0 8px; }
+  .tags b { color: var(--fg); font-weight: 600; }
+  section { padding: 22px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: 20px; margin: 0 0 10px; }
+  p { margin: 0 0 12px; }
+  .muted { color: var(--muted); }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin: 4px 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin: 12px 0; }
+  .warn { border-left: 3px solid var(--accent); }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0 4px; }
+  .btn {
+    display: inline-block; padding: 10px 16px; border-radius: 8px; text-decoration: none;
+    border: 1px solid var(--line); color: var(--fg); background: #1d212c;
+  }
+  .btn.primary { background: var(--accent); color: #1a1205; border-color: var(--accent); font-weight: 600; }
+  footer { padding: 28px 0 56px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); }
+  code { background: #0d0f15; border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand">⇄ TwentyOne.Life</div>
+  <h1>sovereign-swap</h1>
+  <p class="lede">Peer-to-peer, non-custodial atomic swaps between BTC and xBTC (Bitcoin Blake2b).</p>
+  <p class="tags"><b>Tor-first</b> · <b>no accounts</b> · <b>no custodian</b> · <b>your keys stay on your node</b></p>
+  <div class="btns">
+    <a class="btn primary" href="install-verify.md">Install &amp; verify</a>
+    <a class="btn" href="getting-started.md">Getting started</a>
+    <a class="btn" href="https://github.com/TwentyOneLife/sovereign-swap-client-startos">Source on GitHub</a>
+  </div>
+</header>
+
+<section>
+  <h2>What it is</h2>
+  <p>sovereign-swap settles a trade directly between you and a counterparty on two chains at once, with
+  no exchange and no intermediary holding the funds. Each side locks its coin behind the same hashlock;
+  claiming one side reveals the secret that claims the other. There is no step where anyone but you can
+  move your coin, and every swap ends one of two ways: <b>claimed</b>, or <b>refunded</b> back to you.</p>
+  <ul>
+    <li>Your spending keys never leave your node. The relay only carries messages; it holds no funds.</li>
+    <li>No account, no sign-up, no KYC. Offers are public; identities are not.</li>
+    <li>Reached over Tor by default, behind your own password.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>BTC and xBTC are different assets</h2>
+  <p class="muted">Bitcoin Blake2b (xBTC) is a hardfork of Bitcoin with a different proof of work. It
+  shares Bitcoin's address format, so an address alone never tells you which chain it belongs to. The
+  two coins are not interchangeable. A swap is exactly the tool for crossing between them, deliberately
+  and atomically, instead of sending a coin to an address on the wrong chain by mistake.</p>
+</section>
+
+<section>
+  <h2 class="warn">Beta: read this before you swap</h2>
+  <div class="card warn">
+    <p><b>You must keep your client online for the life of a swap.</b> Once a leg is locked, your node
+    is what claims it, or refunds it before the timelock expires. If your client is offline across the
+    whole refund window while blocks pass, you risk the timelock lapsing. Stay online from the moment
+    you take or publish an offer until the swap shows <b>claimed</b> or <b>refunded</b>.</p>
+  </div>
+  <ul>
+    <li><b>Test and dust amounts only.</b> This is early software. The client caps the BTC side of a
+      swap to a small beta limit; do not put meaningful value through it yet.</li>
+    <li><b>Run your own nodes.</b> You connect the client to your own Bitcoin Core (BTC) and Bitcoin
+      Knots BLAKE2b (xBTC) nodes. There is no hosted backend.</li>
+    <li><b>A voluntary fee is on by default</b> and you can turn it off in the client's config. It
+      funds the project; swaps work the same with it off.</li>
+    <li><b>Report what breaks.</b> Issues, logs and odd behaviour are the point of a beta.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Start here</h2>
+  <ol>
+    <li><a href="install-verify.md">Download, verify and sideload the client</a> (GPG + checksum).</li>
+    <li><a href="end-to-end-setup.md">Expose your nodes' RPC and point the client at them</a>.</li>
+    <li><a href="getting-started.md">Do your first swap</a>, and learn where to report issues.</li>
+  </ol>
+</section>
+
+<footer>
+  <p>Self-hostable. No telemetry, no hosted service in the middle, no account.
+  <a href="https://github.com/TwentyOneLife/sovereign-swap">Daemon source</a> ·
+  <a href="https://github.com/TwentyOneLife/sovereign-swap-client-startos">Client package</a> ·
+  <a href="https://twentyone.life">twentyone.life</a></p>
+  <p class="muted">By TwentyOne.Life. The client is AGPL-3.0; see the repositories for licences.</p>
+</footer>
+
+</div>
+</body>
+</html>
