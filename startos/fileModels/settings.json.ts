@@ -31,6 +31,9 @@ export const DEFAULTS = {
   margin_blocks: 2,
   min_swap_sat: 10000,
   min_trade_sat: 100000,
+  // Beta safety cap on the real-value (BTC) leg, in sats (#103). Bounds what a tester can put at
+  // risk; the xBTC leg is uncapped since the swap rate keeps the sides roughly equal in value.
+  max_swap_sat: 100000,
   btc_rpc_user: '',
   btc_rpc_pass: '',
   xbtc_rpc_user: '',
@@ -102,6 +105,7 @@ export const shape = z
     margin_blocks: z.number().int().catch(2),
     min_swap_sat: z.number().int().catch(10000),
     min_trade_sat: z.number().int().catch(100000),
+    max_swap_sat: z.number().int().catch(100000),
     btc_rpc_user: z.string().catch(''),
     btc_rpc_pass: z.string().catch(''),
     xbtc_rpc_user: z.string().catch(''),

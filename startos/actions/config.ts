@@ -248,6 +248,18 @@ const safetySpec = InputSpec.of({
     min: 0,
     integer: true,
   }),
+  max_swap_sat: Value.number({
+    name: 'Largest swap, BTC side (sats)',
+    description:
+      'A safety cap, in satoshis, on the BTC side of any swap, so a swap is kept to a test amount you ' +
+      'can afford to lose during the beta. It bounds both the offers you create and the ones you take. ' +
+      'The xBTC side is not capped: the swap rate keeps the two sides roughly equal in value, so capping ' +
+      'the BTC side bounds the exposure. The default is 100000 sats (0.001 BTC); raise it for larger swaps.',
+    required: true,
+    default: DEFAULTS.max_swap_sat,
+    min: 3000,
+    integer: true,
+  }),
 })
 
 export const safety = sdk.Action.withInput(
