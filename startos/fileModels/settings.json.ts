@@ -42,6 +42,11 @@ export const DEFAULTS = {
   // https LAN address; an onion accepts its own cert (design 0011). Empty for a plain-http node.
   btc_rpc_ca: '',
   xbtc_rpc_ca: '',
+  // Optional Electrum (Fulcrum for BTC, Shulcrum for xBTC) endpoint host:port per chain, for chain
+  // data reads and broadcasts (E1, design 0016); empty uses the node RPC above. Funding and signing
+  // still use the node.
+  btc_electrum: '',
+  xbtc_electrum: '',
   price_reference: false,
   // Voluntary fee, on by default, paying the project's per-chain addresses (design 0013). The fee is
   // part of the offer terms and the counterparty verifies it; an operator can change the addresses or
@@ -112,6 +117,8 @@ export const shape = z
     xbtc_rpc_pass: z.string().catch(''),
     btc_rpc_ca: z.string().catch(''),
     xbtc_rpc_ca: z.string().catch(''),
+    btc_electrum: z.string().catch(''),
+    xbtc_electrum: z.string().catch(''),
     price_reference: z.boolean().catch(false),
     fee_enabled: z.boolean().catch(true), // DEFAULTS.fee_enabled is true: an update with the field
     // absent must keep the fee on (opt-out), not silently flip it off.
