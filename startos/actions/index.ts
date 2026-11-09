@@ -4,6 +4,7 @@ import {
   relaysSigner,
   safety,
   fee,
+  payoutExplorer,
   fundingMode,
   webInterface,
 } from './config'
@@ -13,5 +14,6 @@ export const actions = sdk.Actions.of()
   .addAction(relaysSigner)
   .addAction(safety)
   .addAction(fee)
+  .addAction(payoutExplorer)
   .addAction(fundingMode)
   .addAction(webInterface)
