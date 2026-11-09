@@ -4,14 +4,13 @@ import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 // (`0.2.0:0` -> `0.2.0:1`), keep `other: []`, and keep this migration a no-op. Bump the version
 // proper and add a migration node only for a real data migration.
 export const current = VersionInfo.of({
-  version: '0.2.0:27',
+  version: '0.2.0:28',
   releaseNotes: {
     en_US:
-      'Adds a "Payout and explorer" config action: set an operator-owned payout address per chain so ' +
-      'claimed and refunded proceeds land there (for example a cold wallet) instead of the node wallet, ' +
-      'and a block-explorer URL per chain so swap transaction ids in the web UI become links. Also ' +
-      'carries daemon v0.6.6 (the engine starts even if a relay is briefly unreachable, and rates show ' +
-      'with the right precision). No protocol change.',
+      'Ships sovereign-swap daemon v0.6.7: a reliability fix for nodes that have handled many swaps. ' +
+      'The engine now walks the full wallet history when tracking a lock and its spend, instead of only ' +
+      'the most recent 1000 transactions, so a busy node never loses sight of an in-flight swap. No ' +
+      'protocol or config change from v0.6.6.',
   },
   migrations: { up: async ({ effects }) => {}, down: IMPOSSIBLE },
 })
