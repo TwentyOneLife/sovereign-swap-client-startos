@@ -4,12 +4,14 @@ import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 // (`0.2.0:0` -> `0.2.0:1`), keep `other: []`, and keep this migration a no-op. Bump the version
 // proper and add a migration node only for a real data migration.
 export const current = VersionInfo.of({
-  version: '0.2.0:24',
+  version: '0.2.0:29',
   releaseNotes: {
     en_US:
-      'Ships sovereign-swap daemon v0.6.5: a correctness fix for the voluntary fee. A swap leg below ' +
-      'the minimum trade correctly owes no fee now, instead of failing and tying up the other side’s ' +
-      'locked coin until its timelock refund. No protocol or config change from v0.6.4.',
+      'Ships sovereign-swap daemon v0.6.9 and adds a beta safety cap. A new "Largest swap, BTC side" ' +
+      'setting (default 100000 sats, 0.001 BTC) caps the BTC side of any swap you create or take, so a ' +
+      'beta swap stays a test amount you can afford to lose; the xBTC side is uncapped since the rate ' +
+      'keeps the two sides roughly equal in value. Raise it in the Safety config action for larger ' +
+      'swaps. No protocol change.',
   },
   migrations: { up: async ({ effects }) => {}, down: IMPOSSIBLE },
 })

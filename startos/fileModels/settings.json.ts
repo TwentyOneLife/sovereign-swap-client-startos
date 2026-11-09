@@ -31,6 +31,9 @@ export const DEFAULTS = {
   margin_blocks: 2,
   min_swap_sat: 10000,
   min_trade_sat: 100000,
+  // Beta safety cap on the real-value (BTC) leg, in sats (#103). Bounds what a tester can put at
+  // risk; the xBTC leg is uncapped since the swap rate keeps the sides roughly equal in value.
+  max_swap_sat: 100000,
   btc_rpc_user: '',
   btc_rpc_pass: '',
   xbtc_rpc_user: '',
@@ -53,6 +56,15 @@ export const DEFAULTS = {
     'bc1pe62v4m0p6njpxn2ej9hx307tm0xlccnxe652vxk9r76g2qync7sqkfly4t',
   fee_maker_bps: 20,
   fee_taker_bps: 30,
+  // Payout destinations (F5): where this node's claimed and refunded proceeds land, per chain. Empty
+  // (the default) draws a fresh address from the node funding wallet; set an operator-owned address
+  // (for example a cold wallet) to send proceeds there instead.
+  btc_payout_address: '',
+  xbtc_payout_address: '',
+  // Block-explorer base URL per chain (#67): when set, swap txids in the UI link to <base>/tx/<txid>
+  // (point it at your own mempool over LAN or Tor). Empty renders txids as plain text.
+  btc_explorer_url: '',
+  xbtc_explorer_url: '',
   // Web interface: whether to publish it at all, and the HTTP Basic credentials that gate it. The
   // password is generated randomly on first run (init) so the UI is never open by default; the user
   // can change both in the Web interface config action.
@@ -93,6 +105,7 @@ export const shape = z
     margin_blocks: z.number().int().catch(2),
     min_swap_sat: z.number().int().catch(10000),
     min_trade_sat: z.number().int().catch(100000),
+    max_swap_sat: z.number().int().catch(100000),
     btc_rpc_user: z.string().catch(''),
     btc_rpc_pass: z.string().catch(''),
     xbtc_rpc_user: z.string().catch(''),
@@ -105,6 +118,10 @@ export const shape = z
     fee_xbtc_address: z.string().catch(''),
     fee_maker_bps: z.number().int().catch(20),
     fee_taker_bps: z.number().int().catch(30),
+    btc_payout_address: z.string().catch(''),
+    xbtc_payout_address: z.string().catch(''),
+    btc_explorer_url: z.string().catch(''),
+    xbtc_explorer_url: z.string().catch(''),
     web_enabled: z.boolean().catch(true),
     web_username: z.string().catch('sovereign'),
     web_password: z.string().catch(''),
