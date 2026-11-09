@@ -113,7 +113,8 @@ export const shape = z
     btc_rpc_ca: z.string().catch(''),
     xbtc_rpc_ca: z.string().catch(''),
     price_reference: z.boolean().catch(false),
-    fee_enabled: z.boolean().catch(false),
+    fee_enabled: z.boolean().catch(true), // DEFAULTS.fee_enabled is true: an update with the field
+    // absent must keep the fee on (opt-out), not silently flip it off.
     fee_btc_address: z.string().catch(''),
     fee_xbtc_address: z.string().catch(''),
     fee_maker_bps: z.number().int().catch(20),
