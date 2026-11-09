@@ -36,31 +36,17 @@ Each node serves its RPC over **HTTPS**. You need the endpoint and, for a LAN no
 
 Leave the RPC interface enabled. Nothing else on the node needs to be public.
 
-## Step 2: Give each node a stable RPC login (static `rpcauth`)
+## Step 2: Give each node a stable RPC login
 
-Current node packages expose only the node **cookie**, which the node regenerates on every restart, so
-a cookie pasted into the client breaks at the next restart. Set a static `rpcauth` instead (it persists
-across restarts). This is the same procedure as `instructions.md` step 1:
+The node's cookie rotates on every restart, so it is not a stable credential. Each node package
+generates a static one for you in the StartOS UI (same as `instructions.md` step 1):
 
-1. **Generate the `rpcauth` line locally** (never send your password to the node):
-
-   ```
-   python3 - <<'EOF'
-   import os, hmac, hashlib, binascii
-   user = 'swap'
-   password = 'CHOOSE-A-STRONG-PASSWORD'
-   salt = binascii.hexlify(os.urandom(16)).decode()
-   h = hmac.new(salt.encode(), password.encode(), hashlib.sha256).hexdigest()
-   print(f'rpcauth={user}:{salt}${h}')
-   print('password:', password)
-   EOF
-   ```
-
-   Save the printed `password` (the node stores only the hash); copy the `rpcauth=...` line.
-2. **Add the `rpcauth` line to the node's `bitcoin.conf` and restart the node.** The node's config
-   supports `rpcauth` and preserves it. On StartOS 0.4 there is no node-UI field for this yet, so add
-   it to `bitcoin.conf` over the node's SSH/file access, then restart the node service. Do this once per
-   node. (A node-side "set RPC auth" action would remove the manual step; tracked upstream.)
+1. Open the node's service (**Bitcoin Core**, then **Bitcoin Knots BLAKE2b**) in StartOS and go to its
+   **Actions**.
+2. Under the **RPC Users** group, run **Generate RPC User Credentials**.
+3. Enter a username (for example `swap`) and run it. **Copy the password it shows once** into your
+   password manager (the node persists only the salted hash, in its `bitcoin.conf`). The credential
+   survives node restarts. Do this once per node.
 
 ## Step 3: Point the client at your nodes
 
@@ -105,9 +91,9 @@ Green across BTC, xBTC, engine, and relay means you are ready to swap.
 
 ## Troubleshooting
 
-- **BTC/xBTC dot red, `401`**: wrong RPC user/password, or the node is still on the cookie. Confirm the
-  `rpcauth` line is in the node's `bitcoin.conf` and the node was restarted; re-check the user/password
-  in the client.
+- **BTC/xBTC dot red, `401`**: wrong RPC user/password. Re-run **Generate RPC User Credentials** on the
+  node (step 2) and paste the exact username and the password it shows into the client; the cookie
+  rotates on restart, so use a generated user, not the cookie.
 - **BTC/xBTC dot red, not 401**: endpoint wrong or unreachable. Check the `https://host:port`, that the
   node's RPC interface is up, and (LAN https) that the Root CA matches the node. For a Tor onion, give
   the client's Tor time to build a circuit.
