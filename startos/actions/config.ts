@@ -358,6 +358,64 @@ export const fee = sdk.Action.withInput(
   async ({ effects, input }) => saver(effects)({ input }),
 )
 
+// --- Payout destinations + block explorer (F5 / #67) ---
+const payoutExplorerSpec = InputSpec.of({
+  btc_payout_address: Value.text({
+    name: 'BTC payout address',
+    description:
+      'Where this node’s claimed and refunded BTC proceeds land. Empty (the default) draws a ' +
+      'fresh address from the node funding wallet; set an operator-owned address (for example a cold ' +
+      'wallet) to send proceeds there instead.',
+    required: false,
+    default: DEFAULTS.btc_payout_address,
+    placeholder: 'bc1…',
+  }),
+  xbtc_payout_address: Value.text({
+    name: 'xBTC payout address',
+    description:
+      'Where this node’s claimed and refunded xBTC (Bitcoin Blake2b) proceeds land. Empty draws a ' +
+      'fresh address from the node funding wallet; set an operator-owned address to send proceeds there.',
+    required: false,
+    default: DEFAULTS.xbtc_payout_address,
+    placeholder: 'bc1…',
+  }),
+  btc_explorer_url: Value.text({
+    name: 'BTC block-explorer URL',
+    description:
+      'Base URL of a block explorer for BTC (point it at your own mempool over LAN or Tor). When set, ' +
+      'swap txids in the web UI link to <base>/tx/<txid>. Empty shows txids as plain text.',
+    required: false,
+    default: DEFAULTS.btc_explorer_url,
+    placeholder: 'https://…onion',
+  }),
+  xbtc_explorer_url: Value.text({
+    name: 'xBTC block-explorer URL',
+    description:
+      'Base URL of a block explorer for xBTC (Bitcoin Blake2b). When set, swap txids in the web UI ' +
+      'link to <base>/tx/<txid>. Empty shows txids as plain text.',
+    required: false,
+    default: DEFAULTS.xbtc_explorer_url,
+    placeholder: 'https://…onion',
+  }),
+})
+
+export const payoutExplorer = sdk.Action.withInput(
+  'payout-explorer',
+  async ({ effects }) => ({
+    name: 'Payout and explorer',
+    description:
+      'Optional: where claimed and refunded proceeds land per chain (set a cold-wallet address to keep ' +
+      'proceeds off the node), and a block-explorer URL per chain so swap txids become links.',
+    warning: null,
+    allowedStatuses: 'any',
+    group: 'Configuration',
+    visibility: 'enabled',
+  }),
+  payoutExplorerSpec,
+  current,
+  async ({ effects, input }) => saver(effects)({ input }),
+)
+
 // --- Funding (advanced) ---
 // Per-chain funding mode and cold signer config (design 0012). One Value.object per chain so the
 // fields nest under btc_funding / xbtc_funding exactly as the daemon's FundingConfig serde expects;
