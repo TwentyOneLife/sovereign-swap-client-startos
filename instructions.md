@@ -64,9 +64,11 @@ interface is for the swaps themselves only, **Market** and **Swaps**; all config
 
 ## The voluntary fee
 
-The client can add a small, opt-out fee to each swap, paid to the operator's silent payment address.
-It is **off by default** and ships off; turn it on only under **Settings → Fee (advanced)**. With it
-off, swaps work exactly the same.
+The client adds a small, opt-out fee to each swap, paid to the operator's on-chain (taproot) address,
+one per chain. It is **on by default**. To run swaps with no fee, turn it off under **Actions & Config
+→ Fee (advanced)**; with it off, swaps work exactly the same. The fee address is a plain taproot
+address today, so a fee payment is visible on-chain like any other output; an unlinkable silent-payment
+option is tracked separately and not yet enabled.
 
 ## What it cannot do
 
