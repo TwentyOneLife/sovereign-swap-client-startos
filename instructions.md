@@ -15,34 +15,15 @@ The web UI shows these read-only; this is the one place they are edited.
 ### 1. Create a stable RPC login on each node
 
 Your client logs in to each node's RPC with a username and password, and that login must **survive node
-restarts**. The current StartOS node packages (Bitcoin Core, Bitcoin Knots BLAKE2b) expose only the
-node's **cookie**, which the node regenerates on every restart, so a cookie pasted into the client breaks
-the next time the node restarts. They also no longer ship a "Generate RPC User Credentials" action. The
-stable path is a static `rpcauth` line in the node's `bitcoin.conf` (the node keeps only a salted hash of
-the password, and it persists across restarts):
+restarts** (the node's cookie rotates on every restart, so it is not a stable credential). Each node
+package generates a static one for you, right in the StartOS UI:
 
-1. **Generate the `rpcauth` line locally** (not on the node; it never needs your password). Pick a
-   username (for example `swap`) and a strong password, then run:
-
-   ```
-   python3 - <<'EOF'
-   import os, hmac, hashlib, binascii
-   user = 'swap'
-   password = 'CHOOSE-A-STRONG-PASSWORD'
-   salt = binascii.hexlify(os.urandom(16)).decode()
-   h = hmac.new(salt.encode(), password.encode(), hashlib.sha256).hexdigest()
-   print(f'rpcauth={user}:{salt}${h}')
-   print('password:', password)
-   EOF
-   ```
-
-   Keep the printed `password` in your password manager (the node stores only the hash), and copy the
-   `rpcauth=...` line.
-2. **Add the `rpcauth` line to the node's `bitcoin.conf` and restart the node.** The node's config file
-   supports `rpcauth`, so the line is preserved. On StartOS 0.4 there is no field for this in the node UI
-   yet, so add it to `bitcoin.conf` directly (over the node's SSH/file access) and restart the node
-   service. Do this once per node. (A node-side "set RPC auth" action would remove this manual step; it
-   is tracked upstream.)
+1. Open the node's service (**Bitcoin Core**, and separately **Bitcoin Knots BLAKE2b**) in StartOS and
+   go to its **Actions**.
+2. Under the **RPC Users** group, run **Generate RPC User Credentials**.
+3. Enter a username (for example `swap`) and run it. **Copy the password it shows once** and store it in
+   your password manager: the node persists only the salted hash (in its `bitcoin.conf`), so a lost
+   password means generating a new user. The credential survives node restarts.
 
 ### 2. Point the client at your nodes (Nodes (RPC))
 
