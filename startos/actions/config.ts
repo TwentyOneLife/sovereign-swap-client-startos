@@ -78,6 +78,17 @@ const nodesSpec = InputSpec.of({
     default: DEFAULTS.btc_rpc_ca,
     placeholder: '-----BEGIN CERTIFICATE-----',
   }),
+  btc_electrum: Value.text({
+    name: 'BTC Electrum server (optional)',
+    description:
+      'Optional. An Electrum server (Fulcrum) for BTC, as host:port, e.g. a LAN 192.168.x.x:50001 or a ' +
+      'Tor onion …onion:50001. When set, the client reads BTC chain data and broadcasts through it ' +
+      'instead of the node RPC above; funding and signing still use the node. Leave empty to read ' +
+      'everything from the node.',
+    required: false,
+    default: DEFAULTS.btc_electrum,
+    placeholder: 'host:50001',
+  }),
   xbtc_node: Value.text({
     name: 'xBTC node RPC',
     description:
@@ -116,6 +127,17 @@ const nodesSpec = InputSpec.of({
     required: false,
     default: DEFAULTS.xbtc_rpc_ca,
     placeholder: '-----BEGIN CERTIFICATE-----',
+  }),
+  xbtc_electrum: Value.text({
+    name: 'xBTC Electrum server (optional)',
+    description:
+      'Optional. An Electrum server (Shulcrum) for xBTC (Bitcoin Blake2b), as host:port, e.g. a LAN ' +
+      '192.168.x.x:50001 or a Tor onion …onion:50001. When set, the client reads xBTC chain data and ' +
+      'broadcasts through it instead of the node RPC above; funding and signing still use the node. ' +
+      'Leave empty to read everything from the node.',
+    required: false,
+    default: DEFAULTS.xbtc_electrum,
+    placeholder: 'host:50001',
   }),
 })
 
