@@ -4,13 +4,13 @@ import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 // (`0.2.0:0` -> `0.2.0:1`), keep `other: []`, and keep this migration a no-op. Bump the version
 // proper and add a migration node only for a real data migration.
 export const current = VersionInfo.of({
-  version: '0.2.0:30',
+  version: '0.2.0:31',
   releaseNotes: {
     en_US:
-      'Documentation only. Corrects the setup instructions to use the node’s built-in "Generate RPC ' +
-      'User Credentials" action for a stable RPC login (no manual config editing), and adds an ' +
-      'end-to-end setup guide and a download-verify-and-sideload install guide for beta testers. Same ' +
-      'daemon v0.6.9; no code or config change.',
+      'Corrects the voluntary-fee disclosure: the fee is on by default (opt-out under Actions & Config ' +
+      '→ Fee (advanced)), paid to a plain taproot address (visible on-chain; an unlinkable ' +
+      'silent-payment option is not yet enabled). Also fixes an update path where the fee could ' +
+      'silently turn off on upgrade. Same daemon v0.6.9.',
   },
   migrations: { up: async ({ effects }) => {}, down: IMPOSSIBLE },
 })
