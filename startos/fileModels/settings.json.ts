@@ -12,7 +12,7 @@ import { sdk } from '../sdk'
 // not a shared constant: the file merge mutates nested objects in place, so BTC and xBTC each need
 // their own object or saving one would overwrite the other.
 const funding = () => ({
-  mode: 'hot' as 'hot' | 'cold',
+  mode: 'hot' as 'hot' | 'cold' | 'interactive',
   signer_endpoint: '',
   signer_user: '',
   signer_pass: '',
@@ -89,7 +89,7 @@ export const DEFAULTS = {
 // `btc_funding`/`xbtc_funding` never shares one object across the two chains.
 const fundingShape = z
   .object({
-    mode: z.enum(['hot', 'cold']).catch('hot'),
+    mode: z.enum(['hot', 'cold', 'interactive']).catch('hot'),
     signer_endpoint: z.string().catch(''),
     signer_user: z.string().catch(''),
     signer_pass: z.string().catch(''),
