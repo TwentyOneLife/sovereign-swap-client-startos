@@ -4,14 +4,15 @@ import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 // (`0.2.0:0` -> `0.2.0:1`), keep `other: []`, and keep this migration a no-op. Bump the version
 // proper and add a migration node only for a real data migration.
 export const current = VersionInfo.of({
-  version: '0.2.0:21',
+  version: '0.2.0:22',
   releaseNotes: {
     en_US:
-      'Ships sovereign-swap daemon v0.6.2: a small web-interface polish. Each header status dot now ' +
-      'has a tooltip naming the exact connection it reports (BTC node RPC, xBTC node RPC, swap engine, ' +
-      'Nostr relay, external price reference, active swaps). The footer gains a GitHub link, a Donate ' +
-      'button (the project’s Bitcoin and BitcoinB2B/xBTC addresses, each labelled with its asset), ' +
-      'and the running daemon version. No logic or config change from v0.6.1.',
+      'Ships sovereign-swap daemon v0.6.3: the external price reference now prefers a relay’s price ' +
+      'proxy. When the reference is enabled it reads the BTCB2/BTC rate from a connected relay’s info ' +
+      'document over Tor (so your node never contacts the exchange directly), falling back to a direct ' +
+      'fetch over Tor; it never uses the clear internet. The Create-offer dialog shows the rate, its ' +
+      'source (via relay / direct), and a “verify on nonkyc” link to the market. No protocol or ' +
+      'config change from v0.6.2.',
   },
   migrations: { up: async ({ effects }) => {}, down: IMPOSSIBLE },
 })
