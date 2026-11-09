@@ -475,11 +475,16 @@ const fundingFields = (chain: string, walletHint: string) =>
         'migration path exists (design 0012). After switching to Cold, send funds to the cold account, ' +
         'because only coins received after the switch are tracked (the import does no rescan). Cold ' +
         'funding needs a running signer the daemon can reach (the reference signer is ' +
-        'sovereign-swap-signer).',
+        'sovereign-swap-signer). Interactive means you sign each funding lock yourself in your own ' +
+        'wallet (Sparrow for BTC, Shrike for xBTC): the client builds the unsigned PSBT and parks the ' +
+        'swap, you open it under Swaps, copy the PSBT, sign it, and paste the signed PSBT back. Like ' +
+        'Cold it uses a watch-only funding wallet (set the two account descriptors below), but needs no ' +
+        'external signer; your keys never reach this host.',
       default: 'hot',
       values: {
         hot: 'Hot (node wallet)',
         cold: 'Cold (external signer)',
+        interactive: 'Interactive (you sign in your own wallet)',
       },
     }),
     signer_endpoint: Value.text({
