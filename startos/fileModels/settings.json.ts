@@ -59,6 +59,11 @@ export const DEFAULTS = {
     'bc1p37x3ehmhdy6s40fuy0haw9sv9pmyjdqz5wulvm93jry4fy63ttksxja9sh',
   fee_xbtc_address:
     'bc1pe62v4m0p6njpxn2ej9hx307tm0xlccnxe652vxk9r76g2qync7sqkfly4t',
+  // Optional pre-baked rotating set of fee addresses per chain (design 0018). When non-empty, an offer
+  // cycles through the set on a deterministic offline schedule instead of using the single address
+  // above, so fee receipts are spread across addresses; empty (the default) uses the single address.
+  fee_btc_addresses: [] as string[],
+  fee_xbtc_addresses: [] as string[],
   fee_maker_bps: 20,
   fee_taker_bps: 30,
   // Payout destinations (F5): where this node's claimed and refunded proceeds land, per chain. Empty
@@ -124,6 +129,8 @@ export const shape = z
     // absent must keep the fee on (opt-out), not silently flip it off.
     fee_btc_address: z.string().catch(''),
     fee_xbtc_address: z.string().catch(''),
+    fee_btc_addresses: z.array(z.string()).catch([]),
+    fee_xbtc_addresses: z.array(z.string()).catch([]),
     fee_maker_bps: z.number().int().catch(20),
     fee_taker_bps: z.number().int().catch(30),
     btc_payout_address: z.string().catch(''),
