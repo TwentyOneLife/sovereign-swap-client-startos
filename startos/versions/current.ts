@@ -4,12 +4,13 @@ import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 // (`0.2.0:0` -> `0.2.0:1`), keep `other: []`, and keep this migration a no-op. Bump the version
 // proper and add a migration node only for a real data migration.
 export const current = VersionInfo.of({
-  version: '0.2.0:39',
+  version: '0.2.0:40',
   releaseNotes: {
     en_US:
-      'Maintenance rebuild from corrected commit history; no functional change from 0.2.0:38. Still ' +
-      'daemon v0.6.16, with the Interactive funding mode and the late-signature re-decide guard from ' +
-      '0.2.0:38.',
+      'Daemon v0.6.17. Security: when you take an offer, the client now refuses one whose voluntary ' +
+      'fee for the chain you lock exceeds 1% or pays an address you have not configured, so a hostile ' +
+      'offer cannot charge you a large fee to its own address. Also adds pre-baked offline rotation ' +
+      'of the project fee addresses (off unless a set is configured).',
   },
   migrations: { up: async ({ effects }) => {}, down: IMPOSSIBLE },
 })
