@@ -339,6 +339,32 @@ const feeSpec = InputSpec.of({
       'BTC address above: an address for the wrong chain cannot be detected and the fee would be lost. ' +
       'Leave empty for no fee on the xBTC side.',
   }),
+  fee_btc_addresses: Value.list(
+    List.text(
+      {
+        name: 'BTC fee address rotation set (optional)',
+        description:
+          'An optional set of BTC fee addresses to rotate through instead of the single BTC fee ' +
+          'address above. When you add two or more, each offer uses the set member for the current ' +
+          'time window on a fixed offline schedule, so fee receipts are spread across addresses rather ' +
+          'than reusing one on chain. Leave empty to just use the single BTC fee address. Same rule as ' +
+          'above: these must be BTC addresses, never xBTC.',
+      },
+      { placeholder: 'sp1... or a normal BTC address' },
+    ),
+  ),
+  fee_xbtc_addresses: Value.list(
+    List.text(
+      {
+        name: 'xBTC fee address rotation set (optional)',
+        description:
+          'The same optional rotation set for the xBTC (Bitcoin Knots BLAKE2b) side. Add two or more ' +
+          'xBTC addresses to spread fee receipts across them on the fixed offline schedule; leave empty ' +
+          'to use the single xBTC fee address above. These must be xBTC addresses, never BTC.',
+      },
+      { placeholder: 'sp1... or a normal xBTC address' },
+    ),
+  ),
   fee_maker_bps: Value.number({
     name: 'Maker fee (basis points)',
     description:
