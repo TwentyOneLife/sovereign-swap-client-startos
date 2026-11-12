@@ -7,7 +7,7 @@ export const current = VersionInfo.of({
   version: '0.2.0:52',
   releaseNotes: {
     en_US:
-      'Daemon v0.6.29. Create-offer form: the Advanced exact-counter is gone and a read-only 'You receive' amount now shows the other leg in its own coin (BTC or XBT, by direction). Split tab: the destination is now 'a BTC (Blake2b) address you control' (any Blake2b wallet, Shrike as an example). No swap-engine or wire change; existing installs keep their password and swap state.',
+      'Daemon v0.6.29. Create-offer form: the Advanced exact-counter is gone and a read-only "You receive" amount now shows the other leg in its own coin (BTC or XBT, by direction). Split tab: the destination is now any BTC (Blake2b) address you control (any Blake2b wallet, Shrike as an example). No swap-engine or wire change; existing installs keep their password and swap state.',
   },
   migrations: { up: async ({ effects }) => {}, down: IMPOSSIBLE },
 })
