@@ -4,10 +4,10 @@ import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 // (`0.2.0:0` -> `0.2.0:1`), keep `other: []`, and keep this migration a no-op. Bump the version
 // proper and add a migration node only for a real data migration.
 export const current = VersionInfo.of({
-  version: '0.2.0:51',
+  version: '0.2.0:52',
   releaseNotes: {
     en_US:
-      'Daemon v0.6.28. Market-anchored offer pricing: the Create-offer form now prices from the nonkyc BTCB2/BTC reference instead of a free-form rate, shows the market rate both ways, and lets the maker set a whole-percent margin (1% steps) to earn more or less; off-market offers are refused. Needs the relay price proxy on for the reference. No swap-engine or wire change; existing installs keep their password and swap state.',
+      'Daemon v0.6.29. Create-offer form: the Advanced exact-counter is gone and a read-only 'You receive' amount now shows the other leg in its own coin (BTC or XBT, by direction). Split tab: the destination is now 'a BTC (Blake2b) address you control' (any Blake2b wallet, Shrike as an example). No swap-engine or wire change; existing installs keep their password and swap state.',
   },
   migrations: { up: async ({ effects }) => {}, down: IMPOSSIBLE },
 })
