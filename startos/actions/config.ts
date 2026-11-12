@@ -645,10 +645,13 @@ const webSpec = InputSpec.of({
   web_password: Value.text({
     name: 'Web UI password',
     description:
-      'Password for the web UI login. A strong one is generated on first install; change it here if you like.',
+      'Password for the web UI login. A strong one (24 characters) is generated on first install; ' +
+      'if you change it, use at least 12 characters. Over the onion every request shares the Tor ' +
+      'proxy, so a weak password is the only thing between an attacker who has your address and the UI.',
     required: true,
     default: null,
     masked: true,
+    minLength: 12,
   }),
 })
 

@@ -2,12 +2,21 @@ import { settingsJson, DEFAULTS } from '../fileModels/settings.json'
 import { sdk } from '../sdk'
 
 // A random web UI password, generated once on first run so the interface is never open by default.
-// Unambiguous character set (no 0/O/1/l), 20 characters, from the platform CSPRNG.
+// Unambiguous character set (no 0/O/1/l), 24 characters, from the platform CSPRNG. 24 x log2(55) is
+// ~139 bits, comfortably past 128. Rejection sampling (drop bytes at or above the largest multiple of
+// the charset length) removes the modulo bias a plain `b % len` would leave, so the draw is uniform.
 function randomPassword(): string {
   const charset = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  const bytes = new Uint8Array(20)
-  crypto.getRandomValues(bytes)
-  return Array.from(bytes, (b) => charset[b % charset.length]).join('')
+  const limit = 256 - (256 % charset.length) // 220: reject above this for a uniform distribution
+  const out: string[] = []
+  const buf = new Uint8Array(32)
+  while (out.length < 24) {
+    crypto.getRandomValues(buf)
+    for (const b of buf) {
+      if (b < limit && out.length < 24) out.push(charset[b % charset.length])
+    }
+  }
+  return out.join('')
 }
 
 export const seedFiles = sdk.setupOnInit(async (effects) => {
