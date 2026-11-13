@@ -159,7 +159,12 @@ export const nodes = sdk.Action.withInput(
   async ({ effects, input }) => saver(effects)({ input }),
 )
 
-// --- Relays and signer ---
+// --- Relays ---
+// The legacy global `signer` select was removed from this UI (#203). The daemon never read it (funding
+// mode is authoritative per chain in Funding (advanced)), but an operator reading `signer: cold` could
+// wrongly believe funding was cold while the per-chain mode was actually hot. settings.json still
+// accepts the field (shape `.catch('cold')`) so an older config keeps parsing; it is simply no longer
+// shown or set here. The export name and action id stay `relays-signer` to preserve the action identity.
 const relaysSignerSpec = InputSpec.of({
   relays: Value.list(
     List.text(
@@ -176,28 +181,14 @@ const relaysSignerSpec = InputSpec.of({
       { placeholder: 'ws://…onion:7777' },
     ),
   ),
-  signer: Value.select({
-    name: 'Signer (legacy, not used)',
-    description:
-      'A legacy global signer switch, kept only so an older config still parses. The daemon no longer ' +
-      'reads it: funding mode is now set per chain in the Funding (advanced) action, which is ' +
-      'authoritative. Leave this as it is and use Funding (advanced) to choose Hot or Cold for BTC and ' +
-      'xBTC. Hot is the correct choice for regtest testing.',
-    default: 'cold',
-    values: {
-      cold: 'Cold / watch-only (set per chain in Funding)',
-      hot: 'Hot (node wallet)',
-    },
-  }),
 })
 
 export const relaysSigner = sdk.Action.withInput(
   'relays-signer',
   async ({ effects }) => ({
-    name: 'Relays and signer',
+    name: 'Relays',
     description:
-      'The swap relays (Nostr, Tor-first). The signer field here is legacy and unused; set funding ' +
-      'mode per chain in Funding (advanced).',
+      'The swap relays (Nostr, Tor-first). Funding mode is set per chain in Funding (advanced).',
     warning: null,
     allowedStatuses: 'any',
     group: 'Configuration',
