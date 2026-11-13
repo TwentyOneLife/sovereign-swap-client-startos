@@ -13,7 +13,7 @@ WORKDIR /build
 RUN git clone "$SWAP_REPO" src && cd src && git checkout "$SWAP_REF"
 RUN cd src && cargo build --locked --release --bin sovereign-swap-daemon
 
-FROM debian:bookworm-slim@sha256:40b107342c492725bc7aacbe93a49945445191ae364184a6d24fedb28172f6f7 AS final
+FROM debian:bookworm-slim@sha256:734a72b3d6142a71993b4bc580ca01d8ca687f77a2c422d96a961d3376b179bc AS final
 # curl: the opt-in price reference fetches the nonkyc ticker over Tor via curl (degrades gracefully
 # if absent). ca-certificates for TLS to the exchange.
 RUN apt-get -qq update \
