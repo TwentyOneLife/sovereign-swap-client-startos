@@ -4,10 +4,10 @@ import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 // (`0.2.0:0` -> `0.2.0:1`), keep `other: []`, and keep this migration a no-op. Bump the version
 // proper and add a migration node only for a real data migration.
 export const current = VersionInfo.of({
-  version: '0.2.0:57',
+  version: '0.2.0:58',
   releaseNotes: {
     en_US:
-      'Since the last release this build rolls up several daemon changes (package revision :56 was not published separately): client-side multi-relay aggregation with a connected-relays display, a non-custodial user-held swap core and a public-relay deployment profile (both OFF by default, with a loud startup warning if the public-relay profile is enabled), and local verification of a submitted claim/refund signature before a spend is finalized (a precise, retryable error instead of waiting for the node to reject it). No wire change that breaks older peers; the gated features stay off; existing installs keep their password and swap state.',
+      'Output-only funding (design 0032): the client can run with no funding wallet and no account descriptors - it builds an inputless PSBT with just the swap output, and your own wallet (Sparrow for BTC, Shrike for xBTC) adds the inputs, change and signs; this needs a per-chain payout address for claims and refunds. Interactive funding descriptors are now optional. Offer lifecycle (design 0250 / #250): an offer stays in the market while a swap is in flight (reserved, not re-takeable) and leaves only when the swap completes, returning to the market if the swap abandons or refunds; stale peer offers past their expiry are dropped, and re-publishing an offer no longer duplicates it. Also includes the wrong-chain node guard and a regtest flakiness fix. No wire change that breaks older peers; gated features stay off; existing installs keep their password and swap state.',
   },
   migrations: { up: async ({ effects }) => {}, down: IMPOSSIBLE },
 })
