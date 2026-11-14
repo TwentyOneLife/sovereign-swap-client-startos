@@ -3,7 +3,7 @@
 FROM rust@sha256:ed2c95ca377d6571b124b05e75e01207973ded639dce7d5542eb7bcd797e32aa AS builder
 
 ARG SWAP_REPO=https://github.com/TwentyOneLife/sovereign-swap.git
-ARG SWAP_REF=135f5be1935bac7fdad0f912ff7c59914c65cdd8
+ARG SWAP_REF=dbc346e446d64fba6aed5600f498a1a8e7cbc61e
 
 RUN apt-get -qq update \
  && DEBIAN_FRONTEND=noninteractive apt-get -qq install -y --no-install-recommends ca-certificates git \
