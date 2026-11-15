@@ -561,12 +561,18 @@ const fundingFields = (chain: string, walletHint: string) =>
         'wallet (Sparrow for BTC, Shrike for xBTC): the client builds the unsigned PSBT and parks the ' +
         'swap, you open it under Swaps, copy the PSBT, sign it, and paste the signed PSBT back. Like ' +
         'Cold it uses a watch-only funding wallet (set the two account descriptors below), but needs no ' +
-        'external signer; your keys never reach this host.',
+        'external signer; your keys never reach this host. Interactive with both account descriptors set ' +
+        '(descriptor-backed) is the recommended standard: the daemon builds a fully-funded PSBT your ' +
+        'wallet just opens and signs. Interactive with the descriptors left empty is advanced ' +
+        'output-only: the PSBT has no inputs, so Sparrow and Shrike cannot open it, and you must fund it ' +
+        'from a wallet that builds a template (Bitcoin Core, Electrum) or by paying the lock and fee ' +
+        'outputs directly as a normal send.',
       default: 'hot',
       values: {
-        hot: 'Hot (node wallet)',
+        hot: 'Hot (node wallet, testing)',
         cold: 'Cold (external signer)',
-        interactive: 'Interactive (you sign in your own wallet)',
+        interactive:
+          'Interactive, descriptor-backed (standard; sign in your wallet)',
       },
     }),
     signer_endpoint: Value.text({
@@ -617,7 +623,8 @@ const fundingFields = (chain: string, walletHint: string) =>
       name: 'Receive account descriptor',
       description:
         `The ${chain} receive (external) account output descriptor for the watch-only funding wallet, ` +
-        'used only in Cold mode. It is public key material (an xpub-based output descriptor), never a ' +
+        'used in Cold mode and in descriptor-backed Interactive (the recommended way to use Interactive). ' +
+        'It is public key material (an xpub-based output descriptor), never a ' +
         'private key: the daemon imports it so it can watch your balance and build a funded PSBT for the ' +
         `signer to sign. Get it from your ${walletHint}, for the account that holds the funds you want to ` +
         'swap on this chain. Paste it with or without the trailing #checksum; the daemon canonicalizes ' +
@@ -640,6 +647,20 @@ const fundingFields = (chain: string, walletHint: string) =>
       default: '',
       masked: true,
       placeholder: 'wpkh([fingerprint/84h/0h/0h]xpub.../1/*)',
+    }),
+    funding_birthday: Value.number({
+      name: 'Funding birthday (unix time)',
+      description:
+        `Optional. A unix timestamp the daemon imports the ${chain} descriptor-backed funding wallet ` +
+        'from, so it rescans and sees coins that arrived before you set the descriptor. Use 0 to rescan ' +
+        'from genesis, or a timestamp shortly before your wallet first received coins to keep the rescan ' +
+        'short. Leave empty to not rescan: the wallet then only tracks coins received after you configure ' +
+        "it, and shows a 0 balance until then. A value below a pruned node's prune height is rejected. " +
+        'Only used for Cold and descriptor-backed Interactive.',
+      required: false,
+      default: null,
+      min: 0,
+      integer: true,
     }),
   })
 

@@ -19,6 +19,9 @@ const funding = () => ({
   signer_ca: '',
   descriptor_receive: '',
   descriptor_change: '',
+  // #294: unix timestamp the daemon imports descriptor-backed funding from (0 = genesis), so a freshly
+  // configured descriptor rescans and sees existing coins. null keeps the no-rescan behaviour.
+  funding_birthday: null as number | null,
 })
 
 export const DEFAULTS = {
@@ -114,6 +117,7 @@ const fundingShape = z
     signer_ca: z.string().catch(''),
     descriptor_receive: z.string().catch(''),
     descriptor_change: z.string().catch(''),
+    funding_birthday: z.number().int().nullable().catch(null),
   })
   .strip()
 
