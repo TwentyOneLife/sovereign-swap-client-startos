@@ -29,6 +29,10 @@ export const DEFAULTS = {
   btc_conf: 1,
   xbtc_conf: 2,
   margin_blocks: 2,
+  // #273: extra maker-chain blocks added to an offer's timelocks, widening the window a human has to
+  // sign and submit a funding PSBT. Default 6 (was a fixed 2); only the maker's value sets the window
+  // its counterparty signs in.
+  signing_headroom_blocks: 6,
   min_swap_sat: 10000,
   min_trade_sat: 100000,
   // Beta safety cap on the real-value (BTC) leg, in sats (#103). Bounds what a tester can put at
@@ -113,6 +117,7 @@ export const shape = z
     btc_conf: z.number().int().catch(1),
     xbtc_conf: z.number().int().catch(2),
     margin_blocks: z.number().int().catch(2),
+    signing_headroom_blocks: z.number().int().catch(6),
     min_swap_sat: z.number().int().catch(10000),
     min_trade_sat: z.number().int().catch(100000),
     max_swap_sat: z.number().int().catch(100000),

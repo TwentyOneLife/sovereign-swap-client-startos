@@ -238,6 +238,21 @@ const safetySpec = InputSpec.of({
     min: 1,
     integer: true,
   }),
+  signing_headroom_blocks: Value.number({
+    name: 'Signing window headroom (blocks)',
+    description:
+      'Only matters for Interactive funding, where you sign each funding transaction by hand in your own ' +
+      'wallet. It adds extra blocks to the timelocks of offers you create, widening the window you have to ' +
+      'sign and submit your funding PSBT before the swap would time out. Larger means a more relaxed ' +
+      'signing pace, at the cost of your coins being locked a little longer if a swap has to refund. Only ' +
+      'the maker (the one who creates the offer) sets this; it does not affect offers you take. The engine ' +
+      'floors it at 2, the old fixed value.',
+    required: true,
+    default: DEFAULTS.signing_headroom_blocks,
+    min: 2,
+    max: 144,
+    integer: true,
+  }),
   min_swap_sat: Value.number({
     name: 'Smallest swap leg (sats)',
     description:
