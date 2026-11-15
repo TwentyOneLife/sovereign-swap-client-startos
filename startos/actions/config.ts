@@ -253,6 +253,56 @@ const safetySpec = InputSpec.of({
     max: 144,
     integer: true,
   }),
+  btc_depth_add: Value.number({
+    name: 'Extra BTC confirmations',
+    description:
+      'Confirmations added ON TOP of the engine security-depth floor for the Bitcoin chain. 0 keeps ' +
+      'the floor. Raising it makes you wait for more confirmations before acting on a BTC lock, which ' +
+      'is always safer, never less safe. It also lengthens the timelocks of offers you create so they ' +
+      'still fit the deeper wait, and makes you refuse to take an offer whose timelocks leave no room ' +
+      'for it.',
+    required: true,
+    default: DEFAULTS.btc_depth_add,
+    min: 0,
+    max: 100,
+    integer: true,
+  }),
+  xbtc_depth_add: Value.number({
+    name: 'Extra xBTC confirmations',
+    description:
+      'The same as the BTC setting, for the xBTC (Bitcoin Knots BLAKE2b) chain. xBTC has far less ' +
+      'mining power, so adding confirmations here buys more safety than on BTC. 0 keeps the floor.',
+    required: true,
+    default: DEFAULTS.xbtc_depth_add,
+    min: 0,
+    max: 100,
+    integer: true,
+  }),
+  btc_funding_fee_rate: Value.number({
+    name: 'BTC funding fee rate (sat/vB)',
+    description:
+      'The miner fee rate for your BTC funding (lock) transaction. A number is a fixed sat/vB; enter 0 ' +
+      'to let your node estimate the fee, which is safer on a busy mempool. The default is 2. A rate ' +
+      'that is too low can leave your lock unconfirmed past its signing window, so prefer 0 (estimate) ' +
+      'if your BTC node has fee estimation.',
+    required: true,
+    default: DEFAULTS.btc_funding_fee_rate,
+    min: 0,
+    max: 1000,
+    integer: true,
+  }),
+  xbtc_funding_fee_rate: Value.number({
+    name: 'xBTC funding fee rate (sat/vB)',
+    description:
+      'The miner fee rate for your xBTC funding (lock) transaction, as a fixed sat/vB. The default is ' +
+      '2. Unlike BTC, estimation (0) is not offered here: a quiet xBTC chain often has no fee estimate, ' +
+      'which would make funding fail, so set a fixed rate.',
+    required: true,
+    default: DEFAULTS.xbtc_funding_fee_rate,
+    min: 1,
+    max: 1000,
+    integer: true,
+  }),
   min_swap_sat: Value.number({
     name: 'Smallest swap leg (sats)',
     description:
