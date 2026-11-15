@@ -33,6 +33,15 @@ export const DEFAULTS = {
   // sign and submit a funding PSBT. Default 6 (was a fixed 2); only the maker's value sets the window
   // its counterparty signs in.
   signing_headroom_blocks: 6,
+  // #271: extra confirmations added on top of the engine's security-depth floor, per chain. 0 keeps
+  // the floor (today's behaviour); raising it is always more conservative, never less.
+  btc_depth_add: 0,
+  xbtc_depth_add: 0,
+  // #269: funding (lock) miner fee rate in sat/vB, per chain. A non-zero value is a fixed rate; 0 lets
+  // the node estimate. Default 2 (the previous fixed value). xBTC keeps a fixed rate because a quiet
+  // chain may have no fee estimate; BTC may use 0 to estimate on a busy mempool.
+  btc_funding_fee_rate: 2,
+  xbtc_funding_fee_rate: 2,
   min_swap_sat: 10000,
   min_trade_sat: 100000,
   // Beta safety cap on the real-value (BTC) leg, in sats (#103). Bounds what a tester can put at
@@ -118,6 +127,10 @@ export const shape = z
     xbtc_conf: z.number().int().catch(2),
     margin_blocks: z.number().int().catch(2),
     signing_headroom_blocks: z.number().int().catch(6),
+    btc_depth_add: z.number().int().catch(0),
+    xbtc_depth_add: z.number().int().catch(0),
+    btc_funding_fee_rate: z.number().int().catch(2),
+    xbtc_funding_fee_rate: z.number().int().catch(2),
     min_swap_sat: z.number().int().catch(10000),
     min_trade_sat: z.number().int().catch(100000),
     max_swap_sat: z.number().int().catch(100000),
