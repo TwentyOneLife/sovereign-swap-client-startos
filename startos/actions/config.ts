@@ -204,10 +204,12 @@ const safetySpec = InputSpec.of({
   btc_conf: Value.number({
     name: 'BTC confirmations',
     description:
-      'How many Bitcoin blocks must bury a lock transaction before the engine treats it as final and acts ' +
-      'on it. Higher is safer against a chain reorg but makes each swap slower (about 10 minutes per ' +
-      'block). 1 is reasonable for Bitcoin, where a deep reorg is very expensive. Raise it if you are ' +
-      'swapping large amounts and want more safety margin.',
+      'The MINIMUM number of Bitcoin blocks that must bury a lock before the engine treats it as final. ' +
+      'The engine ALSO applies a value-based security floor (deeper for larger swaps) and uses whichever ' +
+      'is higher, so this setting can RAISE the required confirmations but never lower them below that ' +
+      'floor: a swap can require more confirmations than you set here. Higher is safer against a chain ' +
+      'reorg but makes each swap slower (about 10 minutes per block). 1 is reasonable for Bitcoin, where ' +
+      'a deep reorg is very expensive. Raise it if you are swapping large amounts and want more margin.',
     required: true,
     default: DEFAULTS.btc_conf,
     min: 1,
@@ -218,9 +220,11 @@ const safetySpec = InputSpec.of({
     description:
       'The same setting for the xBTC (Bitcoin Knots BLAKE2b) chain. This chain is younger and has far less ' +
       'mining power than Bitcoin, so reorganising it is cheaper and a lock can be reversed more easily. ' +
-      'Prefer MORE confirmations here than on BTC, not fewer. The default is deliberately above the BTC ' +
-      'default, and you should raise it further for larger swaps. Setting this too low is a real risk on a ' +
-      'low-hashrate chain, not a theoretical one.',
+      'Like the BTC setting, this is a MINIMUM: the engine applies a value-based security floor on top and ' +
+      'uses whichever is higher, so a larger swap can require more confirmations than you set. Prefer MORE ' +
+      'confirmations here than on BTC, not fewer. The default is deliberately above the BTC default, and ' +
+      'you should raise it further for larger swaps. Setting this too low is a real risk on a low-hashrate ' +
+      'chain, not a theoretical one.',
     required: true,
     default: DEFAULTS.xbtc_conf,
     min: 1,
